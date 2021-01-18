@@ -7,4 +7,4 @@ Components
  - Server: Exposes two API's, which track state of currently online RC car(s), and acts as a mediator for car controls to the car, and historic driving data for web controller. Allows for a many to many relationship between cars and controllers.
  - Web Controller: Browser UI for monitoring car performance. May be used for simple controls pertaining to stopping/starting the car and changing speed. Connects to the Server's exposed API.
 
-<sup>(?) Note: Networking scheme and API interface may seem a bit odd. This project is specifically tailored to be used on our University's wireless network.</sup>
+<sup>(?) Note: Networking scheme and API design may seem a bit odd. This project is specifically tailored to be used on our University's wireless network.</sup>
