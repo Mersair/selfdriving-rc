@@ -1,3 +1,6 @@
 # Environmental values
 .env
 
+# Editor metadata
+.vscode
+
