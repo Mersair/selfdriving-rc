@@ -18,26 +18,26 @@ def versionInfo(carid):
     return render_template("dashboard.html", carid=carid), 200
 
 @app.route('/api/client/<carid>/control')
-def controlCar():
+def controlCar(carid):
     car = cars[carid]
     car.isDriving = request.args.get('driving')
     return '200 OK', 200
 
 @app.route('/api/client/<carid>/data')
-def readCarData():
+def readCarData(carid):
     car = cars[carid]
     data = car.readData()
     return jsonify(data), 200
 
 @app.route('/api/car/<carid>/set/data')
-def storeCarData():
+def storeCarData(carid):
     sensorData = request.args.get('sensordata')
     car = getOrSetCar(carid)
     car.storeSensorData(sensorData)
     return '200 OK', 200
 
 @app.route('/api/car/<carid>/control')
-def getCarIsDriving():
+def getCarIsDriving(carid):
     car = getOrSetCar(carid)
     return car.isDriving, 200
 
