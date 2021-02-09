@@ -50,10 +50,10 @@ def getOrSetCar(carid):
         cars[carid] = Car()
     return cars[carid]
 
-@app.route('/api/car/video_feed')
-def video_feed():
-    return Response(videoFeed.gen(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+# @app.route('/api/car/video_feed')
+# def video_feed():
+#     return Response(videoFeed.gen(),
+#                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/api/car/print_data')
 def sensor_data():
