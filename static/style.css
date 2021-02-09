@@ -1,0 +1,57 @@
+body {
+    background-color: #272727;
+    color: #aeaeae;
+}
+
+.flex-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+#cameraContainer {
+    border: 3px solid #aeaeae;
+    border-radius: 5px;
+    display: flex;
+}
+
+#controlsContainer {
+    background-color: #aeaeae;
+    color: #272727;
+    display: flex;
+    align-items: center;
+}
+
+.sensorDataSmall {
+    width: 25%;
+}
+
+.sensorDataLarge {
+    width: 40%;
+}
+
+.data-container {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+}
+
+#hefChart {
+    width: 100%
+}
+
+#batChart {
+    width: 100%
+}
+
+#imuChart {
+    width: 100%
+}
+
+#tmpChart {
+    width: 100%
+}
+
+#hmdChart {
+    width: 100%
+}
