@@ -1,0 +1,14 @@
+<html>
+    <head>
+        <title>DEBUG PAGE</title>
+    </head>
+    <body>
+        <h1>Developer Debug Panel</h1>
+        <p>All cars:</p>
+        <list>
+            {% for car in cars %}
+            <li>{{car}} : <a href="/dashboard/{{car}}">Dashboard</a> | <a href="/api/client/{{car}}/data">Data</a></li>
+            {% endfor %}
+        </list>
+    </body>
+</html>

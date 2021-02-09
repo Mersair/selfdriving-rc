@@ -11,8 +11,12 @@ cars = {}
 def selectCar():
     return render_template("selector.html", cars=cars.keys()), 200
 
+@app.route('/debug')
+def debugPane():
+    return render_template("debug.html", cars=cars), 200
+
 @app.route('/dashboard/<carid>')
-def versionInfo(carid):
+def carDashboard(carid):
     if (carid not in cars):
         return "That car can't be found. Go back to the dashboard to see currently online cars.", 404
     return render_template("dashboard.html", carid=carid), 200

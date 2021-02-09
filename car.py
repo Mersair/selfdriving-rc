@@ -7,6 +7,12 @@ class Car:
         self.imu_data = []
         self.isDriving = False
 
+    # Return the last N entries or as many entries we have, whichever is lower
+    def lastNEntries(self, arr, entries):
+        if (len(arr) < entries):
+            entries = len(arr)
+        return arr[-entries:]
+
     def storeSensorData(self, dataStr):
         # Splice strings to get data
         #TODO: Read these as substrings following the corresponding tag rather than fixed points
@@ -29,15 +35,9 @@ class Car:
     # Get the last stores entries as a dictionary
     def readData(self):
         return {
-            "hall_effect": lastNEntries(self.hall_effect_data, 30),
-            "battery": lastNEntries(self.battery_data, 10),
-            "temperature": lastNEntries(self.temperature_data, 30),
-            "humidity": lastNEntries(self.humidity_data, 30),
-            "imu": lastNEntries(self.imu_data, 30)
+            "hall_effect": self.lastNEntries(self.hall_effect_data, 30),
+            "battery": self.lastNEntries(self.battery_data, 10),
+            "temperature": self.lastNEntries(self.temperature_data, 30),
+            "humidity": self.lastNEntries(self.humidity_data, 30),
+            "imu": self.lastNEntries(self.imu_data, 30)
         }
-
-    # Return the last N entries or as many entries we have, whichever is lower
-    def lastNEntries(arr, entries):
-        if (sizeof(arr) < entries):
-            entries = sizeof(arr)
-        return arr[-entries:]
