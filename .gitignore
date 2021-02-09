@@ -4,3 +4,17 @@
 # Editor metadata
 .vscode
 
+# Compiled code
+_pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution
+.Python
+build/
+MANIFEST
+
+# Flask
+instance/
+.webassets-cache
+
