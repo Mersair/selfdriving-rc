@@ -20,9 +20,6 @@ def carDashboard(carid):
     if (carid not in cars):
         return "That car can't be found. Go back to the dashboard to see currently online cars.", 404
     return render_template("dashboard.html", carid=carid), 200
-    # if (carid not in cars):
-    #     return "That car can't be found. Go back to the dashboard to see currently online cars.", 404
-    # return render_template("dashboard.html", carid=carid), 200
 
 @app.route('/api/client/<carid>/control')
 def controlCar(carid):

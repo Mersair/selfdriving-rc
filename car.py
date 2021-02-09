@@ -39,8 +39,8 @@ class Car:
 
     # Return the last N entries or as many entries we have, whichever is lower
     def lastNEntries(self, arr, entries):
-        if (sizeof(arr) < entries):
-            entries = sizeof(arr)
+        if (len(arr) < entries):
+            entries = len(arr)
         return arr[-entries:]
 
     # Get the last stores entries as a dictionary
