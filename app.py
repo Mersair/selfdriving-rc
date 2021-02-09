@@ -4,7 +4,7 @@ from videoFeed import VideoFeed
 
 app = Flask(__name__)
 cars = {}
-videoFeed = VideoFeed()
+# videoFeed = VideoFeed()
 car = Car()
 
 @app.route('/')
