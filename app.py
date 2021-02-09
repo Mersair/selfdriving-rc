@@ -58,6 +58,3 @@ def getOrSetCar(carid):
 @app.route('/api/car/print_data')
 def sensor_data():
     return Response(car.gen(), mimetype='text/event-stream')
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=2204, threaded=True, debug=True)
