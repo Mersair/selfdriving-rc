@@ -1,10 +1,76 @@
-<html>
-    <head>
-        <title>Car {{carid}}</title>
-    </head>
-    <body>
-        <a href="/">&lt; Go back</a>
-        <h1>Dashboard for {{carid}}</h1>
-        <button id='startstop'>Start car</button>
-    </body>
+<!--<html>-->
+<!--    <body>-->
+<!--        <button id='startstop'>Start car</button>-->
+<!--    </body>-->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> RC Car Dashboard </title>
+    <link rel="stylesheet" href="../static/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
+    <script src="../static/scripts.js"> </script>
+    <script src="../static/configs.js"></script>
+    <title>Car {{carid}}</title>
+</head>
+<body>
+    <a href="/">&lt; Go back</a>
+    <h1>Dashboard for Car: {{carid}}</h1>
+    <div class="flex-container">
+        <div id="cameraContainer">
+            <img src="{{ url_for('video_feed') }}">
+        </div>
+        <div id="controlsContainer">
+            <h2>Start/Stop/Speed</h2>
+        </div>
+<!--        <div id="joystickContainer">-->
+<!--            <div id="joyDiv" style="width:270px;height:350px;margin-bottom:20px;"></div>-->
+<!--            <div class="columnLateral">-->
+<!--                <div id="joy2Div"></div>-->
+<!--                <div id="joyText" style="margin-right:20px;">-->
+<!--                    X Position: <span id="joyPosizioneX"></span><br>-->
+<!--                    Y Position: <span id="joyPosizioneY"></span><br>-->
+<!--                    Direction: <span id="joyDirezione"></span><br>-->
+<!--                    X: <span id="joyX"></span><br>-->
+<!--                    Y: <span id="joyY"></span>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+    </div>
+    <br>
+    <br>
+
+    <script src="../static/scripts.js"> </script>
+    <!--<script src="../static/joy.js"></script>-->
+
+    <!--suppress JSUnresolvedLibraryURL -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!--suppress JSUnresolvedLibraryURL -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+    <div class="flex-container">
+        <div class="sensorDataSmall data-container">
+            <div id="halleffect">
+                <canvas id="hefChart" height="400px"></canvas>
+            </div>
+            <div id="battery">
+                <canvas id="batChart" height="400px"></canvas>
+            </div>
+        </div>
+        <div class="sensorDataLarge data-container">
+            <div id="imu">
+                <canvas id="imuChart" height="600px"></canvas>
+            </div>
+        </div>
+        <div class="sensorDataSmall data-container">
+            <div id="temperature">
+                <canvas id="tmpChart" height=400px"></canvas>
+            </div>
+            <div id="humidity">
+                <canvas id="hmdChart" height="400px"></canvas>
+            </div>
+        </div>
+    </div>
+</body>
 </html>
