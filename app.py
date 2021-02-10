@@ -1,6 +1,6 @@
 from flask import Flask, render_template, Response, jsonify, request
 from car import Car
-from videoFeed import VideoFeed
+from random import randint
 
 app = Flask(__name__)
 cars = {}
@@ -9,11 +9,22 @@ car = Car()
 
 @app.route('/')
 def selectCar():
-    return render_template("selector.html", cars=cars.keys()), 200
+    return render_template("selector.html", cars=cars), 200
 
 @app.route('/debug')
 def debugPane():
     return render_template("debug.html", cars=cars), 200
+
+def makeFakeCars(numCars):
+    for i in range(numCars):
+        car = getOrSetCar(f'Car {i}')
+        fake_sensor_string = str(randint(1000000000000, 9999999999999))
+        car.storeSensorData(fake_sensor_string)
+
+@app.route('/debug/populate')
+def generateFakeCars():
+    makeFakeCars(6)
+    return '200 OK', 200
 
 @app.route('/dashboard/<carid>')
 def carDashboard(carid):
