@@ -70,6 +70,7 @@ def getOrSetCar(carid):
 #     return Response(videoFeed.gen(),
 #                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/api/car/print_data')
-def sensor_data():
-    return Response(car.gen(), mimetype='text/event-stream')
+@app.route('/api/client/<carid>/print/data')
+def print_sensor_data(carid):
+    car = getOrSetCar(carid)
+    return Response(car.print_data(), mimetype='text/event-stream')

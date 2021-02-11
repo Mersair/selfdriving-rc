@@ -43,21 +43,21 @@ class Car:
         }
 
     # FOR TESTING
-    def gen(self):
+    def print_data(self):
         while True:
             json_data = json.dumps(
                 {
                     'time': datetime.now().strftime('%H:%M:%S'),
                     'values': {
                         'imu': {
-                            'x': round(random.random() * 100, 2),
-                            'y': round(random.random() * 100, 2),
-                            'z': round(random.random() * 100, 2),
+                            'x': self.imu_data[-1][0],
+                            'y': self.imu_data[-1][1],
+                            'z': self.imu_data[-1][2],
                         },
-                        'hef': round(random.random() * 100, 2),
-                        'bat': round(random.random() * 100, 2),
-                        'tmp': round(random.random() * 100, 2),
-                        'hmd': round(random.random() * 100, 2),
+                        'hef': self.hall_effect_data[-1],
+                        'bat': self.battery_data[-1],
+                        'tmp': self.temperature_data[-1],
+                        'hmd': self.humidity_data[-1],
                     }
                 }
             )

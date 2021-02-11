@@ -56,7 +56,11 @@ window.onload = function() {
     const tmpChart = new Chart(tmpContext, tmpConfig);
     const hmdChart = new Chart(hmdContext, hmdConfig);
 
-    const source = new EventSource('/api/car/print_data');
+    const carid = document.getElementById('car_id').innerText;
+    const source_string = "/api/client/" + carid + "/print/data";
+    console.log(carid);
+    console.log(source_string);
+    const source = new EventSource(source_string);
     let sensorArr = [hefConfig, batConfig, tmpConfig, hmdConfig];
     let chartArr = [imuChart, hefChart, batChart, tmpChart, hmdChart];
 

@@ -22,6 +22,15 @@ body {
     align-items: center;
 }
 
+a:link {
+  color: rgb(39,252,255);
+  background-color: transparent;
+  text-decoration: underline;
+}
+a:hover {
+  text-decoration: none;
+}
+
 .sensorDataSmall {
     width: 25%;
 }
