@@ -44,17 +44,22 @@ def readCarData(carid):
     data = car.readData()
     return jsonify(data), 200
 
-@app.route('/api/car/<carid>/set/data')
-def storeCarData(carid):
-    sensorData = request.args.get('sensordata')
+@app.route('/api/car/<carid>/data', methods=['POST', 'GET'])
+def carData(carid):
     car = getOrSetCar(carid)
-    car.storeSensorData(sensorData)
-    return '200 OK', 200
+    if request.method == 'POST':
+        sensor_readings = request.get_json()
+        car.storeSensorReadings(sensor_readings)
+        return '200 OK', 200
+    if request.method == 'GET':
+        data = car.readData()
+        return jsonify(data), 200
 
-@app.route('/api/car/<carid>/control')
+@app.route('/api/car/<carid>/control', methods=['GET'])
 def getCarIsDriving(carid):
     car = getOrSetCar(carid)
-    return car.isDriving, 200
+    is_car_driving = car.isDriving
+    return jsonify(is_car_driving), 200
 
 def getOrSetCar(carid):
     if (carid not in cars):

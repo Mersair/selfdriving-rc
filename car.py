@@ -18,24 +18,13 @@ class Car:
             entries = len(arr)
         return arr[-entries:]
 
-    def storeSensorData(self, dataStr):
-        # Splice strings to get data
-        #TODO: Read these as substrings following the corresponding tag rather than fixed points
-        hall_effect = dataStr[0:2]
-        battery = dataStr[2:5]
-        temperature = dataStr[5:7]
-        humidity = dataStr[7:9]
-        imu_x = dataStr[9:10]
-        imu_y = dataStr[10:11]
-        imu_z = dataStr[11:12]
-        imu = [imu_x, imu_y, imu_z] #Bundle in an array for similar storage as with other values
-
+    def storeSensorReadings(self, sensor_readings):
         # Append the new readings to the historic data
-        self.hall_effect_data.append(hall_effect)
-        self.battery_data.append(battery)
-        self.temperature_data.append(temperature)
-        self.humidity_data.append(humidity)
-        self.imu_data.append(imu)
+        self.hall_effect_data.append(sensor_readings['hall_effect'])
+        self.battery_data.append(sensor_readings['battery'])
+        self.temperature_data.append(sensor_readings['temperature'])
+        self.humidity_data.append(sensor_readings['humidity'])
+        self.imu_data.append(sensor_readings['imu'])
 
     # Return the last N entries or as many entries we have, whichever is lower
     def lastNEntries(self, arr, entries):
