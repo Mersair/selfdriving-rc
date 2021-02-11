@@ -4,7 +4,6 @@ from random import randint
 
 app = Flask(__name__)
 cars = {}
-# videoFeed = VideoFeed()
 car = Car()
 
 @app.route('/')
