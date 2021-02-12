@@ -16,14 +16,16 @@ def debugPane():
 
 def makeFakeCars(numCars):
     for i in range(numCars):
-        car = getOrSetCar(f'Car {i}')
-        fake_sensor_string = str(randint(1000000000000, 9999999999999))
-        car.storeSensorData(fake_sensor_string)
+        car_id = len(cars) + i
+        car = getOrSetCar(f'Car {car_id}')
+        fake_sensor_readings = {"hall_effect":13.5, "battery":96, "temperature":103.12, "humidity":28, "imu":[0.83, 0.12, 0.91]}
+        car.storeSensorReadings(fake_sensor_readings)
 
 @app.route('/debug/populate')
 def generateFakeCars():
-    makeFakeCars(6)
-    return '200 OK', 200
+    num_fake_cars = int(request.args.get('cars'))
+    makeFakeCars(num_fake_cars)
+    return render_template("debug.html", cars=cars), 200
 
 @app.route('/dashboard/<carid>')
 def carDashboard(carid):
