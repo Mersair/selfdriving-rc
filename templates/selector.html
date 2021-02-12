@@ -37,19 +37,22 @@
                 </select>
             </div>
         </div>
+        <br>
         <div id="showMoreDiv" style="display:none">
-            <h3> Brief Technical Overview</h3>
+            <br>
+            <h2> &nbsp; Brief Technical Overview </h2>
             <div id="technicalInfo" class="flex-container2">
                 <div>
-                    <h4> Modular Package </h4>
+                    <h3> Modular Package </h3>
                     <img src="../static/media/sensors.jpeg" alt="Modular Sensors Package" width="300">
                 </div>
                 <div>
-                    <h4> System Architecture </h4>
+                    <h3> System Architecture </h3>
                     <img src="../static/media/architecture.jpeg" alt="System Architecture" width="500">
                     <p> Small Description here </p>
                 </div>
             </div>
+            <br> <br>
         </div>
         <br>
         <button id=showMoreButton onclick="showMore()"> Show More </button>
@@ -60,15 +63,15 @@
                 let button = document.getElementById('showMoreButton');
                 let outerDiv = document.getElementById('showMoreDiv');
                 let info = document.getElementById('technicalInfo');
-                if (info.style.display === "none") {
+                if (outerDiv.style.display === "block") {
+                    outerDiv.style.display = "none";
+                    button.innerHTML = "Show More";
+                } else {
                     outerDiv.style.display = "block";
                     info.style.display = "flex";
+                    console.log(info.currentStyle);
                     button.innerHTML = "Show Less";
                     window.scrollTo(0,outerDiv.scrollHeight);
-                } else {
-                    outerDiv.style.display = "none";
-                    info.style.display = "none";
-                    button.innerHTML = "Show More";
                 }
             };
         </script>

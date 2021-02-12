@@ -15,6 +15,12 @@ body {
     flex-wrap: wrap;
 }
 
+#showMoreDiv {
+    background-color: rgb(137, 198, 199);
+    color: #272727;
+    border-radius: 20px;
+}
+
 #cameraContainer {
     border: 3px solid #aeaeae;
     border-radius: 5px;
