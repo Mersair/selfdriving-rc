@@ -9,6 +9,12 @@ body {
     flex-wrap: wrap;
 }
 
+.flex-container2 {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
 #cameraContainer {
     border: 3px solid #aeaeae;
     border-radius: 5px;
@@ -63,4 +69,14 @@ a:hover {
 
 #hmdChart {
     width: 100%
+}
+
+#showMoreButton {
+    background-color: Transparent;
+    background-repeat: no-repeat;
+    border: none;
+    cursor: pointer;
+    color: rgb(39,252,255);
+    overflow: hidden;
+    outline: none;
 }

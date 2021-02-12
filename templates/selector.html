@@ -7,12 +7,28 @@
         <h1>Welcome to ME XXXX</h1>
         <div class="flex-container">
             <div>
-                <h3> Modular AI/Sensors Package MQP </h3>
-                <p> To learn more about our MQP, vist our <a href="/">MQP page</a></p>
+                <h2> Modular AI/Sensors Package MQP </h2>
+                <p> To learn more about our MQP, view our <a href="/">documentation</a></p>
+                <h4> Autonomous Driving </h4>
+                <video width="400" height="300" controls>
+                    <source src="../static/media/test_run.mov" type="video/mp4">
+                </video>
             </div>
             <div>
-                <h3> Manage your Car </h3>
-                <p> Follow the following instructions to connect your vehicle </p>
+                <h2> Manage your Car </h2>
+                <p> To access your vehicle's dashboard:</p>
+                <ol>
+                    <li> Power on the Raspberry Pi and Servo in your vehicle's AI/Sensors package </li>
+                    <li> Refresh this page. You should see your vehicle's name in the drop-down menu below </li>
+                    <li> Select your vehicle's name to be taken to your dashboard. Once there, you
+                        will have three options: </li>
+                        <ul>
+                            <li> <span style="color:red"> 'Start' </span> - signals vehicle to start autonomously driving </li>
+                            <li> <span style="color:red"> 'Stop' </span> - signals vehicle to stop driving </li>
+                            <li> <span style="color:red"> 'Change Speed' </span> - change your vehicle's top speed from
+                                0.2-X throttle </li>
+                        </ul>
+                </ol>
                 <select onchange="document.location.href += this.value">
                     <option selected>Choose a car</option>
                     {% for carid in cars %}
@@ -21,5 +37,40 @@
                 </select>
             </div>
         </div>
+        <div id="showMoreDiv" style="display:none">
+            <h3> Brief Technical Overview</h3>
+            <div id="technicalInfo" class="flex-container2">
+                <div>
+                    <h4> Modular Package </h4>
+                    <img src="../static/media/sensors.jpeg" alt="Modular Sensors Package" width="300">
+                </div>
+                <div>
+                    <h4> System Architecture </h4>
+                    <img src="../static/media/architecture.jpeg" alt="System Architecture" width="500">
+                    <p> Small Description here </p>
+                </div>
+            </div>
+        </div>
+        <br>
+        <button id=showMoreButton onclick="showMore()"> Show More </button>
+        <br>
+        <br>
+        <script>
+            function showMore() {
+                let button = document.getElementById('showMoreButton');
+                let outerDiv = document.getElementById('showMoreDiv');
+                let info = document.getElementById('technicalInfo');
+                if (info.style.display === "none") {
+                    outerDiv.style.display = "block";
+                    info.style.display = "flex";
+                    button.innerHTML = "Show Less";
+                } else {
+                    outerDiv.style.display = "none";
+                    info.style.display = "none";
+                    button.innerHTML = "Show More";
+                }
+            };
+        </script>
     </body>
 </html>
+
