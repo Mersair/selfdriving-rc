@@ -1,12 +1,25 @@
 body {
     background-color: #272727;
     color: #aeaeae;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .flex-container {
     display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
+}
+
+.flex-container2 {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+#showMoreDiv {
+    background-color: rgb(137, 198, 199);
+    color: #272727;
+    border-radius: 20px;
 }
 
 #cameraContainer {
@@ -63,4 +76,14 @@ a:hover {
 
 #hmdChart {
     width: 100%
+}
+
+#showMoreButton {
+    background-color: Transparent;
+    background-repeat: no-repeat;
+    border: none;
+    cursor: pointer;
+    color: rgb(39,252,255);
+    overflow: hidden;
+    outline: none;
 }
