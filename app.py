@@ -76,3 +76,8 @@ def getOrSetCar(carid):
 def print_sensor_data(carid):
     car = getOrSetCar(carid)
     return Response(car.print_data(), mimetype='text/event-stream')
+
+@app.route('/api/client/<carid>/export/data')
+def export_sensor_data(carid):
+    car = getOrSetCar(carid)
+    return jsonify(car.export_sensor_data())

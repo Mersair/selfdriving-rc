@@ -14,7 +14,10 @@
     h1 {display:inline;}
 </style>
 <body>
-    <a href="/">&lt; Go back</a>
+    <div>
+        <a href="/">&lt; Go back</a>
+        <input type="button" id="export" value="Export Data" onclick="exportSensorData()">
+    </div>
     <br>
     <br>
     <h1>Dashboard for Car:</h1>
@@ -23,8 +26,19 @@
         <div id="cameraContainer">
 <!--            <img src="{# url_for('video_feed') #}">-->
         </div>
-        <div id="controlsContainer">
-            <h2>Start/Stop/Speed</h2>
+        <div class="flex-container">
+            <div>
+                <button style="background-color:lightgreen" class="controlButton">Start</button>
+            </div>
+            <div class="button-divider"></div>
+            <div>
+                <button style="background-color:red" class="controlButton">Stop</button>
+            </div>
+            <div class="divider"></div>
+            <div id="slide-container">
+                <input type="range" min="0" max="20" value="10" class="slider" id="myRange">
+                <p class="output">Speed: <span id="demo"></span>%</p>
+            </div>
         </div>
     </div>
     <br>
@@ -59,5 +73,14 @@
             </div>
         </div>
     </div>
+    <script>
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("demo");
+    output.innerHTML = (slider.value)*5;
+
+    slider.oninput = function() {
+      output.innerHTML = (this.value)*5;
+    }
+    </script>
 </body>
 </html>

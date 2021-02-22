@@ -5,6 +5,7 @@ import json
 
 class Car:
     def __init__(self):
+        self.timestamp = []
         self.hall_effect_data = []
         self.battery_data = []
         self.temperature_data = []
@@ -20,6 +21,7 @@ class Car:
 
     def storeSensorReadings(self, sensor_readings):
         # Append the new readings to the historic data
+        self.timestamp.append(datetime.now().strftime('%H:%M:%S'))
         self.hall_effect_data.append(sensor_readings['hall_effect'])
         self.battery_data.append(sensor_readings['battery'])
         self.temperature_data.append(sensor_readings['temperature'])
@@ -35,14 +37,26 @@ class Car:
     # Get the last stores entries as a dictionary
     def readData(self):
         return {
+            "timestamp": self.lastNEntries(self.timestamp, 30),
             "hall_effect": self.lastNEntries(self.hall_effect_data, 30),
-            "battery": self.lastNEntries(self.battery_data, 10),
+            "battery": self.lastNEntries(self.battery_data, 30),
             "temperature": self.lastNEntries(self.temperature_data, 30),
             "humidity": self.lastNEntries(self.humidity_data, 30),
             "imu": self.lastNEntries(self.imu_data, 30)
         }
 
-    # FOR TESTING
+    # Return data to front end for export
+    def export_sensor_data(self):
+        return {
+                "timestamp": self.timestamp,
+                "hall_effect": self.hall_effect_data,
+                "battery": self.battery_data,
+                "temperature": self.temperature_data,
+                "humidity": self.humidity_data,
+                "imu": self.imu_data
+        }
+
+    # Prints to dashboard
     def print_data(self):
         while True:
             json_data = json.dumps(
@@ -62,4 +76,4 @@ class Car:
                 }
             )
             yield f"data:{json_data}\n\n"
-            time.sleep(1)
+            time.sleep(1.5)

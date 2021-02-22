@@ -41,6 +41,62 @@ function hmdUpdate(data) {
     hmdConfig.data.labels.push(data.time);
     hmdConfig.data.datasets[0].data.push(data.values.hmd);
 }
+
+function downloadCSV(data, carid){
+   let csvContent = "data:text/csv;charset=utf-8,"
+
+   rows = [];
+   rows.push(["timestamp", "battery", "hall_effect", "humidity", "imu_x", "imu_y", "imu_z", "temperature"])
+   let i;
+   sensorData = JSON.parse(data);
+   for(i=0; i<sensorData.temperature.length; i++){
+        timestamp = sensorData.timestamp[i];
+        battery = sensorData.battery[i];
+        hall_effect = sensorData.hall_effect[i];
+        humidity = sensorData.humidity[i];
+        imu_x = sensorData.imu[i][0];
+        imu_y = sensorData.imu[i][1];
+        imu_z = sensorData.imu[i][2];
+        temperature = sensorData.temperature[i];
+        rows.push([timestamp, battery, hall_effect, humidity, imu_x, imu_y, imu_z, temperature]);
+   }
+
+   rows.forEach(function(rowArray) {
+        let row = rowArray.join(",");
+        csvContent += row + "\r\n";
+   });
+
+    var encodedUri = encodeURI(csvContent);
+    var link = document.createElement("a");
+    link.setAttribute("href", encodedUri)
+
+    var dateObj = new Date();
+    var month = dateObj.getUTCMonth() + 1;
+    var day = dateObj.getUTCDate();
+    var year = dateObj.getUTCFullYear();
+
+    const download_string = carid + " " + year + "-" + month + "-" + day + " data.csv";
+    link.setAttribute("download", download_string);
+    document.body.appendChild(link); // Required for FF
+
+    link.click();
+}
+
+function exportSensorData(){
+    const carid = document.getElementById('car_id').innerText;
+    const source_string = "/api/client/" + carid + "/export/data";
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           // Retrieve the sensor data from the car
+           let sensorData = xhttp.response;
+           downloadCSV(sensorData, carid);
+        }
+    };
+    xhttp.open("GET", source_string, true);
+    xhttp.send();
+}
+
 window.onload = function() {
 
     const imuContext = document.getElementById('imuChart').getContext('2d');
@@ -58,8 +114,6 @@ window.onload = function() {
 
     const carid = document.getElementById('car_id').innerText;
     const source_string = "/api/client/" + carid + "/print/data";
-    console.log(carid);
-    console.log(source_string);
     const source = new EventSource(source_string);
     let sensorArr = [hefConfig, batConfig, tmpConfig, hmdConfig];
     let chartArr = [imuChart, hefChart, batChart, tmpChart, hmdChart];
