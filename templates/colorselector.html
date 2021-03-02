@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta id="carid" data-name="{{carid}}">
+    <title> Lane Color Selector </title>
+    <link rel="stylesheet" href="../../static/style.css">
+    <script src="../../static/colorselector.js"></script>
+</head>
+<style>
+    h1 {display:inline;}
+</style>
+<body>
+    <div>
+        <a href="/dashboard/{{carid}}">&lt; Go back</a>
+        <input type="button" class="rightMenuButton" value="Reset Colors" onclick="resetColors()">
+    </div>
+    <br>
+    <br>
+    <h1>Lane Color Selector for Car:</h1>
+    <h1 id="car_id">{{carid}}</h1>
+    <div class="flex-container">
+        <div id="lanePickingContainer" class="cameraContainer">
+            <img id="clickImage" src="/api/client/{{carid}}/video_feed">
+        </div>
+        <div class="cameraContainer">
+            <img src="/api/client/{{carid}}/filtered_video_feed">
+        </div>
+
+    </div>
+    <br>
+    <br>
+</body>
+</html>

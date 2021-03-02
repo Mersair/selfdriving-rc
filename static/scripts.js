@@ -82,6 +82,30 @@ function downloadCSV(data, carid){
     link.click();
 }
 
+function startCar(){
+    document.getElementById("startCar").hidden = true;
+    document.getElementById("stopCar").hidden = false;
+
+    const carid = document.getElementById('car_id').innerText;
+    const speed = document.getElementById('speed').innerText;
+    const source_string = "/api/car/" + carid + "/speed/" + speed;
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           // Retrieve the speed value from the dashboard
+           let speed = xhttp.response;
+           console.log(speed)
+        }
+    };
+    xhttp.open("GET", source_string, true);
+    xhttp.send();
+}
+
+function stopCar(){
+    document.getElementById("stopCar").hidden = true;
+    document.getElementById("startCar").hidden = false;
+}
+
 function exportSensorData(){
     const carid = document.getElementById('car_id').innerText;
     const source_string = "/api/client/" + carid + "/export/data";

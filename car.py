@@ -1,16 +1,34 @@
 from datetime import datetime
-import random
+import cv2
+import imutils
 import time
 import json
+from imutils.video import VideoStream
+import threading
+import numpy as np
+from filters import ColorThreshholdFilter
+
+outputFrame = None
+filteredFrame = None
+lock = threading.Lock()
+colorThreshholdFilter = ColorThreshholdFilter()
 
 class Car:
     def __init__(self):
+        # initialize the video stream and allow the camera sensor to warm up
+        # Change this for raspberryPiCam
+        # vs = VideoStream(usePiCamera=1).start()
+        self.vs = VideoStream(src=0).start()
+        time.sleep(2.0)
         self.timestamp = []
         self.hall_effect_data = []
         self.battery_data = []
         self.temperature_data = []
         self.humidity_data = []
         self.imu_data = []
+        self.speed = 0
+        self.lower_channels = [255, 255, 255]
+        self.higher_channels = [0, 0, 0]
         self.isDriving = False
 
     # Return the last N entries or as many entries we have, whichever is lower
@@ -28,12 +46,6 @@ class Car:
         self.humidity_data.append(sensor_readings['humidity'])
         self.imu_data.append(sensor_readings['imu'])
 
-    # Return the last N entries or as many entries we have, whichever is lower
-    def lastNEntries(self, arr, entries):
-        if (len(arr) < entries):
-            entries = len(arr)
-        return arr[-entries:]
-
     # Get the last stores entries as a dictionary
     def readData(self):
         return {
@@ -43,17 +55,47 @@ class Car:
             "temperature": self.lastNEntries(self.temperature_data, 30),
             "humidity": self.lastNEntries(self.humidity_data, 30),
             "imu": self.lastNEntries(self.imu_data, 30)
-        }
+    }
 
     # Return data to front end for export
     def export_sensor_data(self):
         return {
-                "timestamp": self.timestamp,
-                "hall_effect": self.hall_effect_data,
-                "battery": self.battery_data,
-                "temperature": self.temperature_data,
-                "humidity": self.humidity_data,
-                "imu": self.imu_data
+            "timestamp": self.timestamp,
+            "hall_effect": self.hall_effect_data,
+            "battery": self.battery_data,
+            "temperature": self.temperature_data,
+            "humidity": self.humidity_data,
+            "imu": self.imu_data
+        }
+
+    # Set the speed of the car
+    def getAndSetSpeed(self, speed):
+        self.speed = speed
+        return speed
+
+    # Reset the car's color channels
+    def resetColorChannels(self):
+        self.lower_channels = [255, 255, 255]
+        self.higher_channels = [0, 0, 0]
+        return {
+            "lower_channels": self.lower_channels,
+            "higher_channels": self.higher_channels
+        }
+
+    # Get the car's color channels
+    def getColorChannels(self):
+        return {
+            "lower_channels": self.lower_channels,
+            "higher_channels": self.higher_channels
+        }
+
+    # Set the car's color channels
+    def setColorChannels(self, lower_channels, higher_channels):
+        self.lower_channels = lower_channels
+        self.higher_channels = higher_channels
+        return {
+            "lower_channels": self.lower_channels,
+            "higher_channels": self.higher_channels
         }
 
     # Prints to dashboard
@@ -77,3 +119,65 @@ class Car:
             )
             yield f"data:{json_data}\n\n"
             time.sleep(1.5)
+
+    def generate(self):
+        global lock, outputFrame
+        # loop over frames from the output stream
+        while True:
+            # wait until the lock is acquired
+            with lock:
+                # check if the output frame is available, otherwise skip
+                # the iteration of the loop
+                if outputFrame is None:
+                    continue
+
+                # encode the frame in JPEG format
+                (flag, encodedImage) = cv2.imencode(".jpg", outputFrame)
+
+                # ensure the frame was successfully encoded
+                if not flag:
+                    continue
+
+                # yield the output frame in the byte format
+                yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n')
+
+    def generate_filtered(self):
+        global lock, filteredFrame
+        # loop over frames from the output stream
+        while True:
+            # wait until the lock is acquired
+            with lock:
+                # check if the output frame is available, otherwise skip
+                # the iteration of the loop
+                if filteredFrame is None:
+                    continue
+
+                print(self.lower_channels, self.higher_channels)
+                masked = colorThreshholdFilter.apply(filteredFrame, np.array(self.lower_channels),
+                                                     np.array(self.higher_channels))
+                # encode the frame in JPEG format
+                (flag, encodedImage) = cv2.imencode(".jpg", masked)
+
+                # ensure the frame was successfully encoded
+                if not flag:
+                    continue
+
+                # yield the output frame in the byte format
+                yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n')
+
+    def detect(self, speed):
+        # grab global references to the video stream, output frame, and
+        # lock variables
+        global lock, outputFrame, filteredFrame
+        # loop over frames from the video stream
+        while True:
+            # read the next frame from the video stream, resize it,
+            # convert the frame to grayscale, and blur it
+            frame = self.vs.read()
+            frame = imutils.resize(frame, width=650)
+
+            # acquire the lock, set the output frame, and release the
+            # lock
+            with lock:
+                outputFrame = frame.copy()
+                filteredFrame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2HSV)
