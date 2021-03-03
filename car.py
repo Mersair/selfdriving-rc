@@ -6,12 +6,10 @@ import json
 from imutils.video import VideoStream
 import threading
 import numpy as np
-from filters import ColorThreshholdFilter
 
 outputFrame = None
 filteredFrame = None
 lock = threading.Lock()
-colorThreshholdFilter = ColorThreshholdFilter()
 
 class Car:
     def __init__(self):
@@ -83,20 +81,37 @@ class Car:
         }
 
     # Get the car's color channels
-    def getColorChannels(self):
+    def getAndSetColorChannels(self, x, y):
+        global filteredFrame
+
+        if filteredFrame is None:
+            return "no output frame found"
+        # x = 650 - x
+
+        colorsH = int(filteredFrame[y, x, 0])
+        colorsS = int(filteredFrame[y, x, 1])
+        colorsV = int(filteredFrame[y, x, 2])
+        print(colorsH, colorsS, colorsV)
+        self.checkNewHSVMinMax(colorsH, colorsS, colorsV)
+
         return {
             "lower_channels": self.lower_channels,
             "higher_channels": self.higher_channels
         }
 
-    # Set the car's color channels
-    def setColorChannels(self, lower_channels, higher_channels):
-        self.lower_channels = lower_channels
-        self.higher_channels = higher_channels
-        return {
-            "lower_channels": self.lower_channels,
-            "higher_channels": self.higher_channels
-        }
+    def checkNewHSVMinMax(self, h, s, v):
+        if h < self.lower_channels[0]:
+            self.lower_channels[0] = h
+        if s < self.lower_channels[1]:
+            self.lower_channels[1] = s
+        if v < self.lower_channels[2]:
+            self.lower_channels[2] = v
+        if h > self.higher_channels[0]:
+            self.higher_channels[0] = h
+        if s > self.higher_channels[1]:
+            self.higher_channels[1] = s
+        if v > self.higher_channels[2]:
+            self.higher_channels[2] = v
 
     # Prints to dashboard
     def print_data(self):
@@ -152,9 +167,7 @@ class Car:
                 if filteredFrame is None:
                     continue
 
-                print(self.lower_channels, self.higher_channels)
-                masked = colorThreshholdFilter.apply(filteredFrame, np.array(self.lower_channels),
-                                                     np.array(self.higher_channels))
+                masked = cv2.inRange(filteredFrame, np.array(self.lower_channels), np.array(self.higher_channels))
                 # encode the frame in JPEG format
                 (flag, encodedImage) = cv2.imencode(".jpg", masked)
 

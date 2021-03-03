@@ -102,17 +102,12 @@ def get_speed(carid, speed):
     car = getOrSetCar(carid)
     return car.getAndSetSpeed(speed)
 
-@app.route('/api/car/<carid>/get/color')
-def get_color_channels(carid):
-    car = getOrSetCar(carid)
-    return jsonify(car.getColorChannels())
-
-@app.route('/api/car/<carid>/set/color', methods=['POST'])
-def set_color_channels(carid):
+@app.route('/api/car/<carid>/send/coordinates', methods=['POST'])
+def send_coordinates(carid):
     car = getOrSetCar(carid)
     if request.method == 'POST':
-        color_channels = request.get_json()
-        car.setColorChannels(color_channels['lower_channels'], color_channels['higher_channels'])
+        coordinates = request.get_json()
+        car.getAndSetColorChannels(coordinates['x'], coordinates['y'])
         return '200 OK', 200
 
 @app.route('/api/car/<carid>/reset/color')
