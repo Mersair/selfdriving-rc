@@ -24,7 +24,7 @@ class Car:
         self.temperature_data = []
         self.humidity_data = []
         self.imu_data = []
-        self.speed = 0
+        self.speed = 50
         self.lower_channels = [255, 255, 255]
         self.higher_channels = [0, 0, 0]
         self.isDriving = False
@@ -66,10 +66,15 @@ class Car:
             "imu": self.imu_data
         }
 
+    # Get the speed of the car
+    def getSpeed(self):
+        return {
+            "speed": self.speed
+        }
+
     # Set the speed of the car
-    def getAndSetSpeed(self, speed):
+    def setSpeed(self, speed):
         self.speed = speed
-        return speed
 
     # Reset the car's color channels
     def resetColorChannels(self):
@@ -81,7 +86,14 @@ class Car:
         }
 
     # Get the car's color channels
-    def getAndSetColorChannels(self, x, y):
+    def getColorChannels(self):
+        return {
+            "lower_channels": self.lower_channels,
+            "higher_channels": self.higher_channels
+        }
+
+    # Set the car's color channels
+    def setColorChannels(self, x, y):
         global filteredFrame
 
         if filteredFrame is None:
@@ -91,7 +103,6 @@ class Car:
         colorsH = int(filteredFrame[y, x, 0])
         colorsS = int(filteredFrame[y, x, 1])
         colorsV = int(filteredFrame[y, x, 2])
-        print(colorsH, colorsS, colorsV)
         self.checkNewHSVMinMax(colorsH, colorsS, colorsV)
 
         return {
@@ -134,6 +145,13 @@ class Car:
             )
             yield f"data:{json_data}\n\n"
             time.sleep(1.5)
+
+    def getStartupControls(self):
+        return {
+            "speed": self.speed,
+            "lower_channels": self.lower_channels,
+            "higher_channels": self.higher_channels
+        }
 
     def generate(self):
         global lock, outputFrame

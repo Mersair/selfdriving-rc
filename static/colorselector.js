@@ -35,8 +35,6 @@ window.onload = function(){
         canvas.width = image.width;
         canvas.height = image.height;
         canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height);
-        console.log(ev.offsetX)
-        console.log(ev.offsetY)
         sendCoordinates(ev.offsetX, ev.offsetY);
     });
 }

@@ -83,18 +83,17 @@ function downloadCSV(data, carid){
 }
 
 function startCar(){
+    const carid = document.getElementById('car_id').innerText;
     document.getElementById("startCar").hidden = true;
     document.getElementById("stopCar").hidden = false;
 
-    const carid = document.getElementById('car_id').innerText;
-    const speed = document.getElementById('speed').innerText;
-    const source_string = "/api/car/" + carid + "/speed/" + speed;
+    const source_string = "/api/car/" + carid + "/startup/controls";
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
            // Retrieve the speed value from the dashboard
-           let speed = xhttp.response;
-           console.log(speed)
+           let output = JSON.parse(xhttp.response);
+           console.log(output);
         }
     };
     xhttp.open("GET", source_string, true);
@@ -157,4 +156,20 @@ window.onload = function() {
             chartArr[i].update();
         }
     };
+
+    let slider = document.getElementById("myRange");
+    let speed = document.getElementById("speed");
+    const speed_string = "/api/car/" + carid + "/get/speed";
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           // Retrieve the speed value from the dashboard
+           let json = JSON.parse(xhttp.response);
+           let speedValue = json['speed'];
+           speed.innerHTML = speedValue;
+           slider.value  = (speedValue/5);
+        }
+    };
+    xhttp.open("GET", speed_string, true);
+    xhttp.send();
 };

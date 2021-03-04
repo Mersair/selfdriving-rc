@@ -35,7 +35,7 @@
             <br>
             <h3> Top Speed </h3>
             <div id="slide-container">
-                <input type="range" min="0" max="20" value="10" class="slider" id="myRange">
+                <input type="range" min="0" max="20" class="slider" id="myRange">
                 <p class="output">Speed: <span id="speed"></span>%</p>
             </div>
             <h3> Driving Options </h3>
@@ -92,12 +92,19 @@
         </div>
     </div>
     <script>
-    var slider = document.getElementById("myRange");
-    var speed = document.getElementById("speed");
+    let slider = document.getElementById("myRange");
+    let speed = document.getElementById("speed");
     speed.innerHTML = (slider.value)*5;
 
     slider.oninput = function() {
-      speed.innerHTML = (this.value)*5;
+        let speedValue = (this.value)*5;
+        speed.innerHTML = speedValue;
+
+        const carid = document.getElementById('car_id').innerText;
+        const source_string = "/api/car/" + carid + "/set/speed/" + speedValue;
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", source_string, true);
+        xhttp.send();
     }
     </script>
 </body>

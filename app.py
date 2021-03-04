@@ -97,23 +97,39 @@ def export_sensor_data(carid):
     car = getOrSetCar(carid)
     return jsonify(car.export_sensor_data())
 
-@app.route('/api/car/<carid>/speed/<speed>')
-def get_speed(carid, speed):
+@app.route('/api/car/<carid>/set/speed/<speed>', methods=['POST'])
+def set_speed(carid, speed):
     car = getOrSetCar(carid)
-    return car.getAndSetSpeed(speed)
+    car.setSpeed(speed)
+    return '200 OK', 200
+
+@app.route('/api/car/<carid>/get/speed')
+def get_speed(carid):
+    car = getOrSetCar(carid)
+    return jsonify(car.getSpeed())
+
+@app.route('/api/car/<carid>/get/color')
+def get_color_channels(carid):
+    car = getOrSetCar(carid)
+    return car.getColorChannnels()
 
 @app.route('/api/car/<carid>/send/coordinates', methods=['POST'])
 def send_coordinates(carid):
     car = getOrSetCar(carid)
     if request.method == 'POST':
         coordinates = request.get_json()
-        car.getAndSetColorChannels(coordinates['x'], coordinates['y'])
+        car.setColorChannels(coordinates['x'], coordinates['y'])
         return '200 OK', 200
 
 @app.route('/api/car/<carid>/reset/color')
 def reset_color_channels(carid):
     car = getOrSetCar(carid)
     return car.resetColorChannels()
+
+@app.route('/api/car/<carid>/startup/controls')
+def get_startup_controls(carid):
+    car = getOrSetCar(carid)
+    return car.getStartupControls()
 
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
