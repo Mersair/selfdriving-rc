@@ -126,24 +126,27 @@ class Car:
 
     # Prints to dashboard
     def print_data(self):
+        last_length = 0
         while True:
-            json_data = json.dumps(
-                {
-                    'time': datetime.now().strftime('%H:%M:%S'),
-                    'values': {
-                        'imu': {
-                            'x': self.imu_data[-1][0],
-                            'y': self.imu_data[-1][1],
-                            'z': self.imu_data[-1][2],
-                        },
-                        'hef': self.hall_effect_data[-1],
-                        'bat': self.battery_data[-1],
-                        'tmp': self.temperature_data[-1],
-                        'hmd': self.humidity_data[-1],
+            if len(self.temperature_data) > last_length:
+                last_length = len(self.temperature_data)
+                json_data = json.dumps(
+                    {
+                        'time': datetime.now().strftime('%H:%M:%S'),
+                        'values': {
+                            'imu': {
+                                'x': self.imu_data[-1][0],
+                                'y': self.imu_data[-1][1],
+                                'z': self.imu_data[-1][2],
+                            },
+                            'hef': self.hall_effect_data[-1],
+                            'bat': self.battery_data[-1],
+                            'tmp': self.temperature_data[-1],
+                            'hmd': self.humidity_data[-1],
+                        }
                     }
-                }
-            )
-            yield f"data:{json_data}\n\n"
+                )
+                yield f"data:{json_data}\n\n"
             time.sleep(1.5)
 
     def getStartupControls(self):
@@ -196,7 +199,7 @@ class Car:
                 # yield the output frame in the byte format
                 yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n')
 
-    def detect(self, speed):
+    def detect(self):
         # grab global references to the video stream, output frame, and
         # lock variables
         global lock, outputFrame, filteredFrame
@@ -212,3 +215,8 @@ class Car:
             with lock:
                 outputFrame = frame.copy()
                 filteredFrame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2HSV)
+
+    def startDriving(self, inputSpeed, lowerArr, higherArr):
+        print(inputSpeed)
+        print(lowerArr)
+        print(higherArr)

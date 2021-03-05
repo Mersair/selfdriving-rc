@@ -7,6 +7,9 @@ import argparse
 app = Flask(__name__)
 cars = {}
 car = Car()
+speed = 0
+lower_channels = []
+higher_channels = []
 
 @app.route('/')
 def selectCar():
@@ -129,19 +132,27 @@ def reset_color_channels(carid):
 @app.route('/api/car/<carid>/startup/controls')
 def get_startup_controls(carid):
     car = getOrSetCar(carid)
-    return car.getStartupControls()
+    t2 = threading.Thread(target=car.startDriving, args=(car.speed, car.lower_channels, car.higher_channels,))
+    t2.daemon = True
+    t2.start()
+    return jsonify(car.getStartupControls())
 
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-s", "--speed", nargs='?', const=50, type=int, action='store', required=True)
-    args = vars(ap.parse_args())
-    print(args["speed"])
+    # ap = argparse.ArgumentParser()
+    # ap.add_argument("-s", "--speed", nargs='?', const=50, type=int, required=True, help="Car Speed")
+    # ap.add_argument("-l", "--lowerArr", required=True, help="Lower Color Channel")
+    # ap.add_argument("-u", "--higherArr", required=True, help="Higher Color Channel")
+    # args = vars(ap.parse_args())
+    # print(args["speed"])
 
-    # start a thread that will perform motion detection
-    t = threading.Thread(target=car.detect, args=(args["speed"],))
+    # python program exits when only daemon threads are left
+
+    # start a thread that will perform car camera
+    t = threading.Thread(target=car.detect, args=())
     t.daemon = True
     t.start()
+
     # start the flask app
     app.run(debug=True, threaded=True, use_reloader=False)
 
