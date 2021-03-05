@@ -20,14 +20,28 @@
                 <ol>
                     <li> Power on the Raspberry Pi and Servo in your vehicle's AI/Sensors package </li>
                     <li> Refresh this page. You should see your vehicle's name in the drop-down menu below </li>
-                    <li> Select your vehicle's name to be taken to your dashboard. Once there, you
-                        will have three options: </li>
+                    <li> Select your vehicle's name to be taken to your dashboard </li>
+                    <li> You will see your car's id, video feed, and the following options: </li>
+                    <li>
                         <ul>
                             <li> <span style="color:red"> 'Start' </span> - signals vehicle to start autonomously driving </li>
                             <li> <span style="color:red"> 'Stop' </span> - signals vehicle to stop driving </li>
-                            <li> <span style="color:red"> 'Change Speed' </span> - change your vehicle's top speed from
-                                0.2-X throttle </li>
+                            <li> <span style="color:red"> 'Top Speed' </span> - change your vehicle's top speed from
+                                0-100 percent of X throttle </li>
+                            <li> <span style="color:red"> 'Driving Mode' </span>
+                                <ul>
+                                    <li> Racing Mode - lowest latency driving by disabling sensors </li>
+                                    <li> Sensor Mode - higher latency driving with all sensors enabled </li>
+                                </ul>
+                            </li>
+                            <li> <span style="color:red"> 'Driving Algorithm' </span>
+                                <ul>
+                                    <li> Low Latency Lane Following - most reliable </li>
+                                    <li> Raytracing </li>
+                                </ul>
+                            </li>
                         </ul>
+                    </li>
                 </ol>
                 <select style="cursor:pointer" onchange="document.location.href += this.value">
                     <option selected>Choose a car</option>
