@@ -8,7 +8,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
     <script src="../static/scripts.js"> </script>
     <script src="../static/configs.js"></script>
-    <title>Car {{carid}}</title>
 </head>
 <style>
     h1 {display:inline;}
@@ -16,29 +15,48 @@
 <body>
     <div>
         <a href="/">&lt; Go back</a>
-        <input type="button" id="export" value="Export Data" onclick="exportSensorData()">
+        <input type="button" class="rightMenuButton" value="Export Data" onclick="exportSensorData()">
     </div>
     <br>
     <br>
-    <h1>Dashboard for Car:</h1>
+    <h1>Dashboard for:</h1>
     <h1 id="car_id">{{carid}}</h1>
     <div class="flex-container">
-        <div id="cameraContainer">
-<!--            <img src="{# url_for('video_feed') #}">-->
+        <div class="cameraContainer">
+            <img src="/api/client/{{carid}}/video_feed">
         </div>
-        <div class="flex-container">
-            <div>
-                <button style="background-color:lightgreen" class="controlButton">Start</button>
+        <div id="controlContainer">
+            <h2 style="text-align:center; color:black; font-weight:bold"> Vehicle Controls </h2>
+            <h3> Start/Stop Autonomous Driving </h3>
+            <div class="flex-container2">
+                <button id="startCar" class="controlButton" onclick="startCar()">Start</button>
+                <button id="stopCar" hidden class="controlButton" onclick="stopCar()">Stop</button>
             </div>
-            <div class="button-divider"></div>
-            <div>
-                <button style="background-color:red" class="controlButton">Stop</button>
+            <br>
+            <h3> Top Speed </h3>
+            <div id="slide-container">
+                <input type="range" min="0" max="20" class="slider" id="myRange">
+                <p class="output">Speed: <span id="speed"></span>%</p>
+            </div>
+            <h3> Driving Options </h3>
+            <div class="flex-container2">
+                <select style="cursor:pointer">
+                    <option selected disabled>Driving Mode</option>
+                    <option value="Race Mode">Race Mode</option>
+                    <option value="Sensor Mode">Sensor Mode</option>
+                </select>
+                <select style="cursor:pointer">
+                    <option selected disabled>Driving Algorithm</option>
+                    <option value="Lane Following">Lane Following</option>
+                    <option value="Raytracing">Raytracing</option>
+                </select>
             </div>
             <div class="divider"></div>
-            <div id="slide-container">
-                <input type="range" min="0" max="20" value="10" class="slider" id="myRange">
-                <p class="output">Speed: <span id="demo"></span>%</p>
+            <div class="center">
+                <button id="selectColorButton" onclick="document.location.href += this.value" style="text-align:center"
+                    value="/colorselector">Select Lane Color</button>
             </div>
+            <br>
         </div>
     </div>
     <br>
@@ -74,12 +92,19 @@
         </div>
     </div>
     <script>
-    var slider = document.getElementById("myRange");
-    var output = document.getElementById("demo");
-    output.innerHTML = (slider.value)*5;
+    let slider = document.getElementById("myRange");
+    let speed = document.getElementById("speed");
+    speed.innerHTML = (slider.value)*5;
 
     slider.oninput = function() {
-      output.innerHTML = (this.value)*5;
+        let speedValue = (this.value)*5;
+        speed.innerHTML = speedValue;
+
+        const carid = document.getElementById('car_id').innerText;
+        const source_string = "/api/car/" + carid + "/set/speed/" + speedValue;
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", source_string, true);
+        xhttp.send();
     }
     </script>
 </body>

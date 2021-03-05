@@ -1,14 +1,19 @@
 from flask import Flask, render_template, Response, jsonify, request
 from car import Car
-from random import randint
+from testrun import Testrun
+import threading
+import argparse
 
 app = Flask(__name__)
 cars = {}
 car = Car()
+speed = 0
+lower_channels = []
+higher_channels = []
 
 @app.route('/')
 def selectCar():
-    return render_template("selector.html", cars=cars), 200
+    return render_template("landing.html", cars=cars), 200
 
 @app.route('/debug')
 def debugPane():
@@ -32,6 +37,12 @@ def carDashboard(carid):
     if (carid not in cars):
         return "That car can't be found. Go back to the dashboard to see currently online cars.", 404
     return render_template("dashboard.html", carid=carid), 200
+
+@app.route('/dashboard/<carid>/colorselector')
+def colorSelector(carid):
+    if (carid not in cars):
+        return "That car can't be found. Go back to the dashboard to see currently online cars.", 404
+    return render_template("colorselector.html", carid=carid), 200
 
 @app.route('/api/client/<carid>/control')
 def controlCar(carid):
@@ -67,10 +78,17 @@ def getOrSetCar(carid):
         cars[carid] = Car()
     return cars[carid]
 
-# @app.route('/api/car/video_feed')
-# def video_feed():
-#     return Response(videoFeed.gen(),
-#                     mimetype='multipart/x-mixed-replace; boundary=frame')
+@app.route('/api/client/<carid>/video_feed')
+def video_feed(carid):
+    car = getOrSetCar(carid)
+    return Response(car.generate(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/api/client/<carid>/filtered_video_feed')
+def filtered_video_feed(carid):
+    car = getOrSetCar(carid)
+    return Response(car.generate_filtered(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/api/client/<carid>/print/data')
 def print_sensor_data(carid):
@@ -81,3 +99,62 @@ def print_sensor_data(carid):
 def export_sensor_data(carid):
     car = getOrSetCar(carid)
     return jsonify(car.export_sensor_data())
+
+@app.route('/api/car/<carid>/set/speed/<speed>', methods=['POST'])
+def set_speed(carid, speed):
+    car = getOrSetCar(carid)
+    car.setSpeed(speed)
+    return '200 OK', 200
+
+@app.route('/api/car/<carid>/get/speed')
+def get_speed(carid):
+    car = getOrSetCar(carid)
+    return jsonify(car.getSpeed())
+
+@app.route('/api/car/<carid>/get/color')
+def get_color_channels(carid):
+    car = getOrSetCar(carid)
+    return car.getColorChannnels()
+
+@app.route('/api/car/<carid>/send/coordinates', methods=['POST'])
+def send_coordinates(carid):
+    car = getOrSetCar(carid)
+    if request.method == 'POST':
+        coordinates = request.get_json()
+        car.setColorChannels(coordinates['x'], coordinates['y'])
+        return '200 OK', 200
+
+@app.route('/api/car/<carid>/reset/color')
+def reset_color_channels(carid):
+    car = getOrSetCar(carid)
+    return car.resetColorChannels()
+
+@app.route('/api/car/<carid>/startup/controls')
+def get_startup_controls(carid):
+    car = getOrSetCar(carid)
+    t2 = threading.Thread(target=car.startDriving, args=(car.speed, car.lower_channels, car.higher_channels,))
+    t2.daemon = True
+    t2.start()
+    return jsonify(car.getStartupControls())
+
+# check to see if this is the main thread of execution
+if __name__ == '__main__':
+    # ap = argparse.ArgumentParser()
+    # ap.add_argument("-s", "--speed", nargs='?', const=50, type=int, required=True, help="Car Speed")
+    # ap.add_argument("-l", "--lowerArr", required=True, help="Lower Color Channel")
+    # ap.add_argument("-u", "--higherArr", required=True, help="Higher Color Channel")
+    # args = vars(ap.parse_args())
+    # print(args["speed"])
+
+    # python program exits when only daemon threads are left
+
+    # start a thread that will perform car camera
+    t = threading.Thread(target=car.detect, args=())
+    t.daemon = True
+    t.start()
+
+    # start the flask app
+    app.run(debug=True, threaded=True, use_reloader=False)
+
+# release the video stream pointer
+car.vs.stop()

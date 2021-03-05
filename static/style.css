@@ -16,16 +16,30 @@ body {
     flex-wrap: wrap;
 }
 
+.center {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 #showMoreDiv {
     background-color: rgb(137, 198, 199);
     color: #272727;
     border-radius: 20px;
 }
 
-#cameraContainer {
+.cameraContainer {
     border: 3px solid #aeaeae;
     border-radius: 5px;
     display: flex;
+}
+
+#controlContainer {
+    width: 35%;
+    color: #272727;
+    background-color: #aeaeae;
+    border: 3px solid #aeaeae;
+    border-radius: 5px;
 }
 
 a:link {
@@ -81,7 +95,7 @@ a:hover {
     outline: none;
 }
 
-#export {
+.rightMenuButton {
     cursor: pointer;
     float: right;
 }
@@ -92,8 +106,8 @@ a:hover {
 
 .slider {
   -webkit-appearance: none;
-  width: 300px;
-  height: 15px;
+  width: 100%;
+  height: 12px;
   border-radius: 5px;
   background: #d3d3d3;
   outline: none;
@@ -124,23 +138,32 @@ a:hover {
   cursor: pointer;
 }
 
+#startCar:hover {
+    background-color: lightgreen;
+}
+
+#stopCar:hover {
+    background-color: red;
+}
+
 .controlButton {
-    padding: 7px 24px;
+    background-color: white;
+    width: 25%;
+    padding: 8px;
+    cursor: pointer;
 }
 
 .output {
-  color: #aeaeae;
   text-align: center;
 }
 
 .divider{
-    width:25px;
-    height:auto;
+    height:10px;
+    width:auto;
     display:inline-block;
 }
 
-.button-divider{
-    width:10px;
-    height:auto;
-    display:inline-block;
+#selectColorButton {
+    background-color: white;
+    cursor: pointer;
 }
