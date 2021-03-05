@@ -32,7 +32,7 @@
                 <select style="cursor:pointer" onchange="document.location.href += this.value">
                     <option selected>Choose a car</option>
                     {% for carid in cars %}
-                    <option value="dashboard/{{carid}}">{{carid}}</option>
+                    <option value="dashboard/{{carid}}">{{cars[carid]}}</option>
                     {% endfor %}
                 </select>
             </div>

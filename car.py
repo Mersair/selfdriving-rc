@@ -11,6 +11,8 @@ class Car:
         self.humidity_data = []
         self.imu_data = []
         self.isDriving = False
+        self.speed = 0.2
+        self.speedRange = (0.0, 0.25) #Highest and lowest throttle speed
 
     # Return the last N entries or as many entries we have, whichever is lower
     def lastNEntries(self, arr, entries):
