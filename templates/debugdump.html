@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>[DEBUG] Dump All Data</title>
+    <style>
+        table, th, td {
+            border: 1px solid rgb(136, 136, 136);
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <a href="/">&lt; Home</a>
+    </div>
+    <main>
+        <h1>[DEBUG] Database Dump</h1>
+        <table>
+            <tr>
+                <th>Key</th>
+                <th>Value</th>
+            </tr>
+            {% for key in dumpDict %}
+                <tr>
+                    <td>{{key}}</td>
+                    <td>{{dumpDict[key]}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </main>
+</body>
+</html>

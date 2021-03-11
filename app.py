@@ -12,11 +12,17 @@ import threading
 load_dotenv('.env')
 
 app = Flask(__name__)
+
 r = redis.from_url(os.environ.get("REDIS_URL"))
 
-# Initialize the cars in the set
-initial_cars = {}
-r.set('cars', json.dumps(initial_cars))
+car = Car()
+
+def initDB():
+    # Initialize the cars in the set
+    initial_cars = {}
+    r.set('cars', json.dumps(initial_cars))
+
+initDB()
 
 def getCar(car_id):
     car_json = r.get(car_id)
@@ -48,7 +54,6 @@ def enrollCar():
     r.set('cars', json.dumps(cars))
     return jsonify({'id': car_id}), 200
     
-
 @app.route('/dashboard/<car_id>')
 def carDashboard(car_id):
     cars = json.loads(r.get('cars'))
@@ -61,6 +66,39 @@ def colorSelector(carid):
     if (carid not in cars):
         return "That car can't be found. Go back to the dashboard to see currently online cars.", 404
     return render_template("colorselector.html", carid=carid), 200
+
+@app.route('/debug')
+def debug():
+    cars = json.loads(r.get('cars'))
+    return render_template("debugactions.html", cars=cars), 200
+
+@app.route('/debug/dump')
+def debugDump():
+    dumpDict = {}
+    for key in r.keys():
+        dumpDict[str(key, 'utf-8')] = str(r.get(key), 'utf-8')
+    return render_template("debugdump.html", dumpDict=dumpDict), 200
+
+@app.route('/debug/car', methods=['POST'])
+def debugSpecificCar():
+    car_id = request.form.get('car_id')
+    car = getCar(car_id)
+    action = request.form.get('action')
+    if action == 'delete':
+        r.delete(car_id)
+
+    cars = json.loads(r.get('cars'))
+    return render_template("debugactions.html", cars=cars), 200
+
+@app.route('/debug/general', methods=['POST'])
+def debugGeneral():
+    action = request.form.get('action')
+    if action == 'dump':
+        r.flushall()
+        initDB()
+
+    cars = json.loads(r.get('cars'))
+    return render_template("debugactions.html", cars=cars), 200
 
 @app.route('/api/client/<carid>/control')
 def controlCar(carid):

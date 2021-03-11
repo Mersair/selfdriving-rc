@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>[DEBUG] Actions</title>
+</head>
+<style>
+    h1 {display:inline;}
+</style>
+<body>
+    <div>
+        <a href="/">&lt; Home</a>
+    </div>
+    <main>
+        <h1>[DEBUG] Actions</h1>
+        <div style="background-color: rgb(252, 178, 178)">
+            <h2>Car specific actions</h2>
+            <form action="/debug/car" method="POST">
+                <select name="car_id">
+                    {% for carid in cars %}
+                        <option value="{{car}}">{{cars[carid]}}</option>
+                    {% endfor %}
+                </select>
+                <select name="action">
+                    <option value="delete">Delete</option>
+                </select>
+                <button type="submit">Run car-specific action</button>
+            </form>
+        </div>
+        <div style="background-color: rgb(187, 187, 255)">
+            <h2>Program wide actions</h2>
+            <form action="/debug/general" method="POST">
+                <select name="action">
+                    <option value="dump">DUMP entire DB</option>
+                </select>
+                <button type="submit">Run program-wide action</button>
+            </form>
+            <button onclick="makeDebugCar()">Make a dummy car</button>
+        </div>
+    </main>
+</body>
+<script>
+    function makeDebugCar() {
+        // Create a request variable and assign a new XMLHttpRequest object to it.
+        var request = new XMLHttpRequest();
+
+        // Open a new connection, using the GET request on the URL endpoint
+        request.open('GET', '/api/enroll', true);
+
+        request.onload = function () {
+            location.reload();
+        };
+
+        // Send request
+        request.send()
+    }
+</script>
+</html>
