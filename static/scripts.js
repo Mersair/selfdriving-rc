@@ -120,6 +120,39 @@ function exportSensorData(){
     xhttp.send();
 }
 
+document.addEventListener("DOMContentLoaded", function(event) {
+    const image_elem = document.getElementById("streamer-image");
+
+    var socket = io.connect('http://' + document.domain + ':' + location.port + '/web', {
+      reconnection: false
+    });
+
+    socket.on('connect', () => {
+      console.log('Connected');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected');
+    });
+
+    socket.on('connect_error', (error) => {
+      console.log('Connect error! ' + error);
+    });
+
+    socket.on('connect_timeout', (error) => {
+      console.log('Connect timeout! ' + error);
+    });
+
+    socket.on('error', (error) => {
+      console.log('Error! ' + error);
+    });
+
+    // Update image and text data based on incoming data messages
+    socket.on('server2web', (msg) => {
+        image_elem.src = msg.image;
+    });
+});
+
 window.onload = function() {
 
     const imuContext = document.getElementById('imuChart').getContext('2d');
@@ -160,12 +193,12 @@ window.onload = function() {
     let slider = document.getElementById("myRange");
     let speed = document.getElementById("speed");
     const speed_string = "/api/car/" + carid + "/get/speed";
+    console.log(speed_string)
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
            // Retrieve the speed value from the dashboard
-           let json = JSON.parse(xhttp.response);
-           let speedValue = json['speed'];
+           let speedValue = JSON.parse(xhttp.response);
            speed.innerHTML = speedValue;
            slider.value  = (speedValue/5);
         }

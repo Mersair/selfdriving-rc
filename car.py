@@ -6,6 +6,7 @@ import json
 from imutils.video import VideoStream
 import threading
 import numpy as np
+from redisConn import RedisConn
 
 outputFrame = None
 filteredFrame = None
@@ -16,7 +17,7 @@ class Car:
         # initialize the video stream and allow the camera sensor to warm up
         # Change this for raspberryPiCam
         # vs = VideoStream(usePiCamera=1).start()
-        self.vs = VideoStream(src=0).start()
+        # self.vs = VideoStream(src=0).start()
         time.sleep(2.0)
         self.timestamp = []
         self.hall_effect_data = []
