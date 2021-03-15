@@ -12,6 +12,15 @@ echo "Flask debug server detected. Connecting to '$FLASK_DEBUG_IP'."
 SERVER_URL="$FLASK_DEBUG_IP"
 fi
 
+echo "Attempting to enroll car"
+ENROLL_RESPONSE=`curl -sX GET $SERVER_URL/api/enroll | jq -r '.id'`
+if [ ${#ENROLL_RESPONSE} -ge 36 ]; then
+echo "Enrolled succesfully with the id '$ENROLL_RESPONSE'"
+else
+echo "Could not enroll car. Please ensure server is online."
+exit 1
+fi
+
 while :
 do
     echo "Sending sensor data\n"

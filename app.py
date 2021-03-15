@@ -126,6 +126,8 @@ def carData(carid):
     car = getCar(car_id)
     if request.method == 'POST':
         sensor_readings = request.get_json()
+        for reading in request.args:
+            sensor_readings[reading] = reading
         return '200 OK', 200
     if request.method == 'GET':
         data = car.readData()
@@ -204,25 +206,3 @@ def get_startup_controls(carid):
     t2.daemon = True
     t2.start()
     return jsonify(car.getStartupControls())
-
-# check to see if this is the main thread of execution
-if __name__ == '__main__':
-    # ap = argparse.ArgumentParser()
-    # ap.add_argument("-s", "--speed", nargs='?', const=50, type=int, required=True, help="Car Speed")
-    # ap.add_argument("-l", "--lowerArr", required=True, help="Lower Color Channel")
-    # ap.add_argument("-u", "--higherArr", required=True, help="Higher Color Channel")
-    # args = vars(ap.parse_args())
-    # print(args["speed"])
-
-    # python program exits when only daemon threads are left
-
-    # start a thread that will perform car camera
-    t = threading.Thread(target=car.detect, args=())
-    t.daemon = True
-    t.start()
-
-    # start the flask app
-    app.run(debug=True, threaded=True, use_reloader=False)
-
-# release the video stream pointer
-car.vs.stop()
