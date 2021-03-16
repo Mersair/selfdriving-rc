@@ -6,6 +6,11 @@
     <title> Lane Color Selector </title>
     <link rel="stylesheet" href="../../static/style.css">
     <script src="../../static/colorselector.js"></script>
+        <!-- Socket IO
+    ================================================== -->
+    <script type="text/javascript"
+          src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.0/socket.io.js">
+    </script>
 </head>
 <style>
     h1 {display:inline;}
@@ -21,10 +26,10 @@
     <h1 id="car_id">{{carid}}</h1>
     <div class="flex-container">
         <div id="lanePickingContainer">
-            <img id="clickImage" src="/api/client/{{carid}}/video_feed">
+            <img id="clickImage" src="">
         </div>
         <div>
-            <img src="/api/client/{{carid}}/filtered_video_feed">
+            <img id="streamer-image" src="">
         </div>
 
     </div>
