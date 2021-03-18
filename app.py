@@ -1,34 +1,67 @@
+from flask_socketio import SocketIO
 from flask import Flask, render_template, Response, jsonify, request, abort
-from car import Car
 from random import randint
-import os
-import redis
 import json
 import uuid
-from datetime import datetime
-from dotenv import load_dotenv
-import threading
-
-load_dotenv('.env')
+from redisConn import RedisConn
 
 app = Flask(__name__)
-r = redis.from_url(os.environ.get("REDIS_URL"))
+socketio = SocketIO(app)
+redis = RedisConn()
 
 # Initialize the cars in the set
 initial_cars = {}
-r.set('cars', json.dumps(initial_cars))
+redis.set_car_json('cars', json.dumps(initial_cars))
+
+# Video Socket logging, one namespace for computer vision client and one for the web client
+@socketio.on('connect', namespace='/web')
+def connect_web():
+    print('[INFO] Web client connected: {}'.format(request.sid))
+
+
+@socketio.on('disconnect', namespace='/web')
+def disconnect_web():
+    print('[INFO] Web client disconnected: {}'.format(request.sid))
+
+
+@socketio.on('connect', namespace='/cv')
+def connect_cv():
+    print('[INFO] CV client connected: {}'.format(request.sid))
+
+@socketio.on('disconnect', namespace='/cv')
+def disconnect_cv():
+    print('[INFO] CV client disconnected: {}'.format(request.sid))
+
+@socketio.on('channels2server', namespace='/cv')
+def color_channels_to_redis(message):
+    json_data = json.loads(message)
+    car_json = redis.get_car_json(json_data['carid'])
+    car_json['lower_channels'] = json_data['lower_channels']
+    car_json['higher_channels'] = json_data['higher_channels']
+    setCar(json_data['carid'], car_json)
+
+# Video Socket message handlers
+@socketio.on('cvimage2server', namespace='/cv')
+def handle_cv_message(message):
+    image2web_string = 'image2web/' + message['carid']
+    socketio.emit(image2web_string, message, namespace='/web')
+
+@socketio.on('cvfiltered2server', namespace='/cv')
+def handle_cv_message(message):
+    filtered2web_string = 'filtered2web/' + message['carid']
+    socketio.emit(filtered2web_string, message, namespace='/web')
+
 
 def getCar(car_id):
-    car_json = r.get(car_id)
+    car_json = redis.get_car_json(car_id)
     if car_json is None:
         abort(404, description=(f"Your request for car '{car_id}' could not be processed as the car doesn't exist."))
     else:
-        car = json.loads(car_json)
-        return car
+        return car_json
 
 def setCar(car_id, car_data):
     car_json = json.dumps(car_data)
-    r.set(car_id, car_json)
+    redis.set_car_json(car_id, car_json)
 
 @app.errorhandler(404)
 def resource_not_found(e):
@@ -36,35 +69,51 @@ def resource_not_found(e):
 
 @app.route('/')
 def selectCar():
-    cars = json.loads(r.get('cars'))
+    cars = redis.get_car_json('cars')
     return render_template("landing.html", cars=cars), 200
 
 @app.route('/api/enroll')
 def enrollCar():
     car_id = str(uuid.uuid4())
-    setCar(car_id, "{}")
-    cars = json.loads(r.get('cars'))
+    initial_configs = {
+        "speed": 0,
+        "lower_channels": [255, 255, 255],
+        "higher_channels": [0, 0, 0],
+        "timestamp": [],
+        "temperature_data": [],
+        "humidity_data": [],
+        "imu_data": [],
+        "hall_effect_data": [],
+        "battery_data": []
+    }
+    setCar(car_id, initial_configs)
+    cars = redis.get_car_json('cars')
     cars[car_id] = getFriendlyCarName()
-    r.set('cars', json.dumps(cars))
+    redis.set_car_json('cars', json.dumps(cars))
+    socketio.emit('carid2cv', car_id, namespace='/cv')
     return jsonify({'id': car_id}), 200
     
 
 @app.route('/dashboard/<car_id>')
 def carDashboard(car_id):
-    cars = json.loads(r.get('cars'))
+    cars = redis.get_car_json('cars')
+    friendly_name = cars[car_id]
     if (car_id not in cars):
         return "That car can't be found. Go back to the dashboard to see currently online cars.", 404
-    return render_template("dashboard.html", carid=carid), 200
+    return render_template("dashboard.html", carid=car_id, friendly_name=friendly_name), 200
 
-@app.route('/dashboard/<carid>/colorselector')
-def colorSelector(carid):
-    if (carid not in cars):
+@app.route('/dashboard/<car_id>/colorselector')
+def colorSelector(car_id):
+    cars = redis.get_car_json('cars')
+    friendly_name = cars[car_id]
+    if (car_id not in cars):
         return "That car can't be found. Go back to the dashboard to see currently online cars.", 404
-    return render_template("colorselector.html", carid=carid), 200
+    return render_template("colorselector.html", carid=car_id, friendly_name=friendly_name), 200
 
-@app.route('/api/client/<carid>/control')
-def controlCar(carid):
-    car = cars[carid]
+@app.route('/api/client/<car_id>/control')
+def controlCar(car_id):
+    cars = redis.get_car_json('cars')
+    car = cars[car_id]
     car.isDriving = request.args.get('driving')
     return '200 OK', 200
 
@@ -72,7 +121,7 @@ def controlCar(carid):
 def carControl(car_id):
     car = getCar(car_id)
     if request.method == 'POST':
-        accepted_args = ['throttle_speed', 'algorithm', 'algorithm_mode', 'lane_color_high', 'lane_color_low']
+        accepted_args = ['throttle_speed', 'algorithm', 'algorithm_mode', 'higher_channels', 'lower_channels']
         for argument in request.args:
             print(f"Attempting to match the argument named '{argument}'.")
             if argument in accepted_args:
@@ -84,13 +133,16 @@ def carControl(car_id):
         return jsonify(car), 200
 
 @app.route('/api/car/<car_id>/data', methods=['POST', 'GET'])
-def carData(carid):
-    car = getCar(car_id)
+def car_data(car_id):
+    car_json = getCar(car_id)
     if request.method == 'POST':
         sensor_readings = request.get_json()
+        new_readings = json.loads(redis.store_sensor_readings(car_id, car_json, sensor_readings))
+        data2web_string = 'data2web/' + car_id
+        socketio.emit(data2web_string, json.dumps(new_readings), namespace='/web')
         return '200 OK', 200
     if request.method == 'GET':
-        data = car.readData()
+        data = redis.read_data(car_json)
         return jsonify(data), 200
 
 def getFriendlyCarName():
@@ -108,83 +160,60 @@ def getFriendlyCarName():
 
     return f"{descriptor} {color} {car}"
 
-@app.route('/api/client/<carid>/video_feed')
-def video_feed(carid):
-    car = getOrSetCar(carid)
-    return Response(car.generate(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+@app.route('/api/client/<car_id>/export/data')
+def export_sensor_data(car_id):
+    car_json = getCar(car_id)
+    return jsonify({
+        "timestamp": car_json['timestamp'],
+        "hall_effect": car_json['hall_effect_data'],
+        "battery": car_json['battery_data'],
+        "temperature": car_json['temperature_data'],
+        "humidity": car_json['humidity_data'],
+        "imu": car_json['imu_data']
+    })
 
-@app.route('/api/client/<carid>/filtered_video_feed')
-def filtered_video_feed(carid):
-    car = getOrSetCar(carid)
-    return Response(car.generate_filtered(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
-
-@app.route('/api/client/<carid>/print/data')
-def print_sensor_data(carid):
-    car = getOrSetCar(carid)
-    return Response(car.print_data(), mimetype='text/event-stream')
-
-@app.route('/api/client/<carid>/export/data')
-def export_sensor_data(carid):
-    car = getOrSetCar(carid)
-    return jsonify(car.export_sensor_data())
-
-@app.route('/api/car/<carid>/set/speed/<speed>', methods=['POST'])
-def set_speed(carid, speed):
-    car = getOrSetCar(carid)
-    car.setSpeed(speed)
+@app.route('/api/car/<car_id>/set/speed/<speed>', methods=['POST'])
+def set_speed(car_id, speed):
+    car_json = redis.get_car_json(car_id)
+    car_json['speed'] = speed
+    redis.set_car_json(car_id, json.dumps(car_json))
     return '200 OK', 200
 
-@app.route('/api/car/<carid>/get/speed')
-def get_speed(carid):
-    car = getOrSetCar(carid)
-    return jsonify(car.getSpeed())
+@app.route('/api/car/<car_id>/get/speed')
+def get_speed(car_id):
+    car_json = redis.get_car_json(car_id)
+    return json.dumps(car_json['speed'])
 
-@app.route('/api/car/<carid>/get/color')
-def get_color_channels(carid):
-    car = getOrSetCar(carid)
-    return car.getColorChannnels()
-
-@app.route('/api/car/<carid>/send/coordinates', methods=['POST'])
-def send_coordinates(carid):
-    car = getOrSetCar(carid)
+@app.route('/api/car/<car_id>/send/coordinates', methods=['POST'])
+def send_coordinates(car_id):
     if request.method == 'POST':
         coordinates = request.get_json()
-        car.setColorChannels(coordinates['x'], coordinates['y'])
+        coordinates2cv_string = 'coordinates2cv/' + car_id
+        socketio.emit(coordinates2cv_string, json.dumps(coordinates), namespace='/cv')
         return '200 OK', 200
 
-@app.route('/api/car/<carid>/reset/color')
-def reset_color_channels(carid):
-    car = getOrSetCar(carid)
-    return car.resetColorChannels()
+@app.route('/api/car/<car_id>/reset/color')
+def reset_color_channels(car_id):
+    car_json = redis.get_car_json(car_id)
+    car_json['higher_channels'] = [0, 0, 0]
+    car_json['lower_channels'] = [255, 255, 255]
+    redis.set_car_json(car_id, json.dumps(car_json))
+    resetcolors2cv_string = 'resetcolors2cv/' + car_id
+    socketio.emit(resetcolors2cv_string, namespace='/cv')
+    return '200 OK', 200
 
-@app.route('/api/car/<carid>/startup/controls')
-def get_startup_controls(carid):
-    car = getOrSetCar(carid)
-    t2 = threading.Thread(target=car.startDriving, args=(car.speed, car.lower_channels, car.higher_channels,))
-    t2.daemon = True
-    t2.start()
-    return jsonify(car.getStartupControls())
+@app.route('/api/car/<car_id>/startup/controls')
+def get_startup_controls(car_id):
+    car_json = redis.get_car_json(car_id)
+    return jsonify({
+        "speed": car_json['speed'],
+        "lower_channels": car_json['lower_channels'],
+        "higher_channels": car_json['higher_channels']
+    })
+
 
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
-    # ap = argparse.ArgumentParser()
-    # ap.add_argument("-s", "--speed", nargs='?', const=50, type=int, required=True, help="Car Speed")
-    # ap.add_argument("-l", "--lowerArr", required=True, help="Lower Color Channel")
-    # ap.add_argument("-u", "--higherArr", required=True, help="Higher Color Channel")
-    # args = vars(ap.parse_args())
-    # print(args["speed"])
-
-    # python program exits when only daemon threads are left
-
-    # start a thread that will perform car camera
-    t = threading.Thread(target=car.detect, args=())
-    t.daemon = True
-    t.start()
-
-    # start the flask app
-    app.run(debug=True, threaded=True, use_reloader=False)
-
-# release the video stream pointer
-car.vs.stop()
+    # start the flask app with socketio
+    print('[INFO] Starting server at http://0.0.0.0:5000')
+    socketio.run(app=app, host='0.0.0.0', port=5000)

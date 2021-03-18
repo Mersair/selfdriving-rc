@@ -1,4 +1,17 @@
 
+let imuContext = null
+let hefContext = null
+let batContext = null
+let tmpContext = null
+let hmdContext = null
+let imuChart = null
+let hefChart = null
+let batChart = null
+let tmpChart = null
+let hmdChart = null
+let sensorArr = []
+let chartArr = []
+
 function shiftSensor(configObj) {
     if (configObj.data.labels.length === 15) {
         configObj.data.labels.shift();
@@ -16,30 +29,30 @@ function shiftImuSensor() {
 }
 
 function imuUpdate(data) {
-    imuConfig.data.labels.push(data.time);
-    imuConfig.data.datasets[0].data.push(data.values.imu.x);
-    imuConfig.data.datasets[1].data.push(data.values.imu.y);
-    imuConfig.data.datasets[2].data.push(data.values.imu.z);
+    imuConfig.data.labels.push(data.timestamp);
+    imuConfig.data.datasets[0].data.push(data.imu_data[0]);
+    imuConfig.data.datasets[1].data.push(data.imu_data[1]);
+    imuConfig.data.datasets[2].data.push(data.imu_data[2]);
 }
 
 function hefUpdate(data) {
-    hefConfig.data.labels.push(data.time);
-    hefConfig.data.datasets[0].data.push(data.values.hef);
+    hefConfig.data.labels.push(data.timestamp);
+    hefConfig.data.datasets[0].data.push(data.hall_effect_data);
 }
 
 function batUpdate(data) {
-    batConfig.data.labels.push(data.time);
-    batConfig.data.datasets[0].data.push(data.values.bat);
+    batConfig.data.labels.push(data.timestamp);
+    batConfig.data.datasets[0].data.push(data.battery_data);
 }
 
 function tmpUpdate(data) {
-    tmpConfig.data.labels.push(data.time);
-    tmpConfig.data.datasets[0].data.push(data.values.tmp);
+    tmpConfig.data.labels.push(data.timestamp);
+    tmpConfig.data.datasets[0].data.push(data.temperature_data);
 }
 
 function hmdUpdate(data) {
-    hmdConfig.data.labels.push(data.time);
-    hmdConfig.data.datasets[0].data.push(data.values.hmd);
+    hmdConfig.data.labels.push(data.timestamp);
+    hmdConfig.data.datasets[0].data.push(data.humidity_data);
 }
 
 function downloadCSV(data, carid){
@@ -120,29 +133,42 @@ function exportSensorData(){
     xhttp.send();
 }
 
-window.onload = function() {
-
-    const imuContext = document.getElementById('imuChart').getContext('2d');
-    const hefContext = document.getElementById('hefChart').getContext('2d');
-    const batContext = document.getElementById('batChart').getContext('2d');
-    const tmpContext = document.getElementById('tmpChart').getContext('2d');
-    const hmdContext = document.getElementById('hmdChart').getContext('2d');
-
-    Chart.defaults.global.defaultFontColor = '#aeaeae';
-    const imuChart = new Chart(imuContext, imuConfig);
-    const hefChart = new Chart(hefContext, hefConfig);
-    const batChart = new Chart(batContext, batConfig);
-    const tmpChart = new Chart(tmpContext, tmpConfig);
-    const hmdChart = new Chart(hmdContext, hmdConfig);
-
+document.addEventListener("DOMContentLoaded", function(event) {
+    const image_elem = document.getElementById("streamer-image");
     const carid = document.getElementById('car_id').innerText;
-    const source_string = "/api/client/" + carid + "/print/data";
-    const source = new EventSource(source_string);
-    let sensorArr = [hefConfig, batConfig, tmpConfig, hmdConfig];
-    let chartArr = [imuChart, hefChart, batChart, tmpChart, hmdChart];
 
-    source.onmessage = function (event) {
-        const data = JSON.parse(event.data);
+    var socket = io.connect('http://' + document.domain + ':' + location.port + '/web', {
+      reconnection: false
+    });
+
+    socket.on('connect', () => {
+      console.log('Connected');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected');
+    });
+
+    socket.on('connect_error', (error) => {
+      console.log('Connect error! ' + error);
+    });
+
+    socket.on('connect_timeout', (error) => {
+      console.log('Connect timeout! ' + error);
+    });
+
+    socket.on('error', (error) => {
+      console.log('Error! ' + error);
+    });
+
+    let image2web_string = 'image2web/' + carid
+    socket.on(image2web_string, (msg) => {
+        image_elem.src = msg.image;
+    });
+
+    let data2web_string = 'data2web/' + carid
+    socket.on(data2web_string, (sensor_readings) => {
+        const data = JSON.parse(sensor_readings);
         for(let i=0; i<sensorArr.length; i++){
             shiftSensor(sensorArr[i]);
         }
@@ -155,8 +181,27 @@ window.onload = function() {
         for(let i=0; i<chartArr.length; i++){
             chartArr[i].update();
         }
-    };
+    })
+});
 
+window.onload = function() {
+    imuContext = document.getElementById('imuChart').getContext('2d');
+    hefContext = document.getElementById('hefChart').getContext('2d');
+    batContext = document.getElementById('batChart').getContext('2d');
+    tmpContext = document.getElementById('tmpChart').getContext('2d');
+    hmdContext = document.getElementById('hmdChart').getContext('2d');
+
+    Chart.defaults.global.defaultFontColor = '#aeaeae';
+    imuChart = new Chart(imuContext, imuConfig);
+    hefChart = new Chart(hefContext, hefConfig);
+    batChart = new Chart(batContext, batConfig);
+    tmpChart = new Chart(tmpContext, tmpConfig);
+    hmdChart = new Chart(hmdContext, hmdConfig);
+
+    sensorArr = [hefConfig, batConfig, tmpConfig, hmdConfig];
+    chartArr = [imuChart, hefChart, batChart, tmpChart, hmdChart];
+
+    const carid = document.getElementById('car_id').innerText;
     let slider = document.getElementById("myRange");
     let speed = document.getElementById("speed");
     const speed_string = "/api/car/" + carid + "/get/speed";
@@ -164,8 +209,7 @@ window.onload = function() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
            // Retrieve the speed value from the dashboard
-           let json = JSON.parse(xhttp.response);
-           let speedValue = json['speed'];
+           let speedValue = JSON.parse(xhttp.response);
            speed.innerHTML = speedValue;
            slider.value  = (speedValue/5);
         }

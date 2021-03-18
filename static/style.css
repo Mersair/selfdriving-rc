@@ -157,12 +157,6 @@ a:hover {
   text-align: center;
 }
 
-.divider{
-    height:10px;
-    width:auto;
-    display:inline-block;
-}
-
 #selectColorButton {
     background-color: white;
     cursor: pointer;
