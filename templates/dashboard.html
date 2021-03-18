@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="carid" data-name="{{carid}}">
+    <meta id="friendlyname" data-name="{{friendly_name}}">
     <title> RC Car Dashboard </title>
     <link rel="stylesheet" href="../static/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
@@ -16,6 +17,7 @@
 </head>
 <style>
     h1 {display:inline;}
+    h3 {display:inline;}
 </style>
 <body>
     <div>
@@ -25,7 +27,10 @@
     <br>
     <br>
     <h1>Dashboard for:</h1>
-    <h1 id="car_id">{{carid}}</h1>
+    <h1 id="friendly_name">{{friendly_name}}</h1>
+    <br>
+    <h3>Car ID:</h3>
+    <h3 id="car_id">{{carid}}</h3>
     <div class="flex-container">
         <div class="cameraContainer">
             <img id="streamer-image" src="">

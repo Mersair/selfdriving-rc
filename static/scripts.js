@@ -28,31 +28,31 @@ function shiftImuSensor() {
     }
 }
 
-function imuUpdate(data, idx) {
-    imuConfig.data.labels.push(data.timestamp[idx]);
-    imuConfig.data.datasets[0].data.push(data.imu_data[idx][0]);
-    imuConfig.data.datasets[1].data.push(data.imu_data[idx][1]);
-    imuConfig.data.datasets[2].data.push(data.imu_data[idx][2]);
+function imuUpdate(data) {
+    imuConfig.data.labels.push(data.timestamp);
+    imuConfig.data.datasets[0].data.push(data.imu_data[0]);
+    imuConfig.data.datasets[1].data.push(data.imu_data[1]);
+    imuConfig.data.datasets[2].data.push(data.imu_data[2]);
 }
 
-function hefUpdate(data, idx) {
-    hefConfig.data.labels.push(data.timestamp[idx]);
-    hefConfig.data.datasets[0].data.push(data.hall_effect_data[idx]);
+function hefUpdate(data) {
+    hefConfig.data.labels.push(data.timestamp);
+    hefConfig.data.datasets[0].data.push(data.hall_effect_data);
 }
 
-function batUpdate(data, idx) {
-    batConfig.data.labels.push(data.timestamp[idx]);
-    batConfig.data.datasets[0].data.push(data.battery_data[idx]);
+function batUpdate(data) {
+    batConfig.data.labels.push(data.timestamp);
+    batConfig.data.datasets[0].data.push(data.battery_data);
 }
 
-function tmpUpdate(data, idx) {
-    tmpConfig.data.labels.push(data.timestamp[idx]);
-    tmpConfig.data.datasets[0].data.push(data.temperature_data[idx]);
+function tmpUpdate(data) {
+    tmpConfig.data.labels.push(data.timestamp);
+    tmpConfig.data.datasets[0].data.push(data.temperature_data);
 }
 
-function hmdUpdate(data, idx) {
-    hmdConfig.data.labels.push(data.timestamp[idx]);
-    hmdConfig.data.datasets[0].data.push(data.humidity_data[idx]);
+function hmdUpdate(data) {
+    hmdConfig.data.labels.push(data.timestamp);
+    hmdConfig.data.datasets[0].data.push(data.humidity_data);
 }
 
 function downloadCSV(data, carid){
@@ -167,18 +167,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     let data2web_string = 'data2web/' + carid
-    socket.on(data2web_string, (car_json) => {
-        const data = JSON.parse(car_json);
-        let idx = data.temperature_data.length - 1
+    socket.on(data2web_string, (sensor_readings) => {
+        const data = JSON.parse(sensor_readings);
         for(let i=0; i<sensorArr.length; i++){
             shiftSensor(sensorArr[i]);
         }
         shiftImuSensor();
-        imuUpdate(data, idx);
-        hefUpdate(data, idx);
-        batUpdate(data, idx);
-        tmpUpdate(data, idx);
-        hmdUpdate(data, idx);
+        imuUpdate(data);
+        hefUpdate(data);
+        batUpdate(data);
+        tmpUpdate(data);
+        hmdUpdate(data);
         for(let i=0; i<chartArr.length; i++){
             chartArr[i].update();
         }

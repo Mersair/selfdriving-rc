@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta id="carid" data-name="{{carid}}">
+    <meta id="friendlyname" data-name="{{friendly_name}}">
     <title> Lane Color Selector </title>
     <link rel="stylesheet" href="../../static/style.css">
     <script src="../../static/colorselector.js"></script>
@@ -14,8 +15,8 @@
 </head>
 <style>
     h1 {display:inline;}
+    h3 {display:inline;}
 </style>
-<body>
     <div>
         <a href="/dashboard/{{carid}}">&lt; Go back</a>
         <input type="button" class="rightMenuButton" value="Reset Colors" onclick="resetColors()">
@@ -23,7 +24,10 @@
     <br>
     <br>
     <h1>Lane Color Selector for:</h1>
-    <h1 id="car_id">{{carid}}</h1>
+    <h1 id="friendly_name">{{friendly_name}}</h1>
+    <br>
+    <h3>Car ID:</h3>
+    <h3 id="car_id">{{carid}}</h3>
     <div class="flex-container">
         <div id="lanePickingContainer">
             <img id="clickImage" src="">

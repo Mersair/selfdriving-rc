@@ -27,6 +27,15 @@ class RedisConn:
         car_json["humidity_data"].append(sensor_readings['humidity'])
         car_json["imu_data"].append(sensor_readings['imu'])
         r.set(car_id, json.dumps(car_json))
+        idx = len(car_json["temperature_data"]) - 1
+        return json.dumps({
+            "timestamp": car_json["timestamp"][idx],
+            "hall_effect_data": car_json["hall_effect_data"][idx],
+            "battery_data": car_json["battery_data"][idx],
+            "temperature_data": car_json["temperature_data"][idx],
+            "humidity_data": car_json["humidity_data"][idx],
+            "imu_data": car_json["imu_data"][idx]
+        })
 
     def lastNEntries(self, arr, entries):
         if (len(arr) < entries):

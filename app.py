@@ -97,16 +97,18 @@ def enrollCar():
 @app.route('/dashboard/<car_id>')
 def carDashboard(car_id):
     cars = redis.get_car_json('cars')
+    friendly_name = cars[car_id]
     if (car_id not in cars):
         return "That car can't be found. Go back to the dashboard to see currently online cars.", 404
-    return render_template("dashboard.html", carid=car_id), 200
+    return render_template("dashboard.html", carid=car_id, friendly_name=friendly_name), 200
 
 @app.route('/dashboard/<car_id>/colorselector')
 def colorSelector(car_id):
     cars = redis.get_car_json('cars')
+    friendly_name = cars[car_id]
     if (car_id not in cars):
         return "That car can't be found. Go back to the dashboard to see currently online cars.", 404
-    return render_template("colorselector.html", carid=car_id), 200
+    return render_template("colorselector.html", carid=car_id, friendly_name=friendly_name), 200
 
 @app.route('/api/client/<car_id>/control')
 def controlCar(car_id):
@@ -135,9 +137,9 @@ def car_data(car_id):
     car_json = getCar(car_id)
     if request.method == 'POST':
         sensor_readings = request.get_json()
-        redis.store_sensor_readings(car_id, car_json, sensor_readings)
+        all_readings = json.loads(redis.store_sensor_readings(car_id, car_json, sensor_readings))
         data2web_string = 'data2web/' + car_id
-        socketio.emit(data2web_string, json.dumps(car_json), namespace='/web')
+        socketio.emit(data2web_string, json.dumps(all_readings), namespace='/web')
         return '200 OK', 200
     if request.method == 'GET':
         data = redis.read_data(car_json)
