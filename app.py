@@ -210,10 +210,3 @@ def get_startup_controls(car_id):
         "lower_channels": car_json['lower_channels'],
         "higher_channels": car_json['higher_channels']
     })
-
-
-# check to see if this is the main thread of execution
-if __name__ == '__main__':
-    # start the flask app with socketio
-    print('[INFO] Starting server at http://0.0.0.0:5000')
-    socketio.run(app=app, host='0.0.0.0', port=5000)
