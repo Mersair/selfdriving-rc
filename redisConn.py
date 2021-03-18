@@ -20,21 +20,21 @@ class RedisConn:
 
     def store_sensor_readings(self, car_id, car_json, sensor_readings):
         # Append the new readings to the historic data
-        car_json["timestamp"].append(datetime.now().strftime('%H:%M:%S'))
+        sensor_time = datetime.now().strftime('%H:%M:%S')
+        car_json["timestamp"].append(sensor_time)
         car_json["hall_effect_data"].append(sensor_readings['hall_effect'])
         car_json["battery_data"].append(sensor_readings['battery'])
         car_json["temperature_data"].append(sensor_readings['temperature'])
         car_json["humidity_data"].append(sensor_readings['humidity'])
         car_json["imu_data"].append(sensor_readings['imu'])
         r.set(car_id, json.dumps(car_json))
-        idx = len(car_json["temperature_data"]) - 1
         return json.dumps({
-            "timestamp": car_json["timestamp"][idx],
-            "hall_effect_data": car_json["hall_effect_data"][idx],
-            "battery_data": car_json["battery_data"][idx],
-            "temperature_data": car_json["temperature_data"][idx],
-            "humidity_data": car_json["humidity_data"][idx],
-            "imu_data": car_json["imu_data"][idx]
+            "timestamp": sensor_time,
+            "hall_effect_data": sensor_readings["hall_effect"],
+            "battery_data": sensor_readings['battery'],
+            "temperature_data": sensor_readings['temperature'],
+            "humidity_data": sensor_readings['humidity'],
+            "imu_data": sensor_readings['imu']
         })
 
     def lastNEntries(self, arr, entries):

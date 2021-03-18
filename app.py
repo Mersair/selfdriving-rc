@@ -137,9 +137,9 @@ def car_data(car_id):
     car_json = getCar(car_id)
     if request.method == 'POST':
         sensor_readings = request.get_json()
-        all_readings = json.loads(redis.store_sensor_readings(car_id, car_json, sensor_readings))
+        new_readings = json.loads(redis.store_sensor_readings(car_id, car_json, sensor_readings))
         data2web_string = 'data2web/' + car_id
-        socketio.emit(data2web_string, json.dumps(all_readings), namespace='/web')
+        socketio.emit(data2web_string, json.dumps(new_readings), namespace='/web')
         return '200 OK', 200
     if request.method == 'GET':
         data = redis.read_data(car_json)

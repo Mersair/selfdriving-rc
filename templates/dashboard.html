@@ -25,31 +25,31 @@
         <input type="button" class="rightMenuButton" value="Export Data" onclick="exportSensorData()">
     </div>
     <br>
-    <br>
     <h1>Dashboard for:</h1>
     <h1 id="friendly_name">{{friendly_name}}</h1>
     <br>
     <h3>Car ID:</h3>
     <h3 id="car_id">{{carid}}</h3>
-    <div class="flex-container">
+    <div class="divider"></div>
+    <div class="flex-container" style="margin-top: 10px">
         <div class="cameraContainer">
             <img id="streamer-image" src="">
         </div>
         <div id="controlContainer">
             <h2 style="text-align:center; color:black; font-weight:bold"> Vehicle Controls </h2>
             <h3> Start/Stop Autonomous Driving </h3>
-            <div class="flex-container2">
+            <div class="flex-container2" style="margin-top: 10px">
                 <button id="startCar" class="controlButton" onclick="startCar()">Start</button>
                 <button id="stopCar" hidden class="controlButton" onclick="stopCar()">Stop</button>
             </div>
             <br>
             <h3> Top Speed </h3>
-            <div id="slide-container">
+            <div id="slide-container" style="margin-top: 10px">
                 <input type="range" min="0" max="20" class="slider" id="myRange">
                 <p class="output">Speed: <span id="speed"></span>%</p>
             </div>
             <h3> Driving Options </h3>
-            <div class="flex-container2">
+            <div class="flex-container2" style="margin-top: 10px; margin-bottom: 15px">
                 <select style="cursor:pointer">
                     <option selected disabled>Driving Mode</option>
                     <option value="Race Mode">Race Mode</option>
@@ -61,7 +61,6 @@
                     <option value="Raytracing">Raytracing</option>
                 </select>
             </div>
-            <div class="divider"></div>
             <div class="center">
                 <button id="selectColorButton" onclick="document.location.href += this.value" style="text-align:center"
                     value="/colorselector">Select Lane Color</button>
