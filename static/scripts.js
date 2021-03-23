@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     const image_elem = document.getElementById("streamer-image");
     const carid = document.getElementById('car_id').innerText;
 
-    var socket = io.connect('http://' + document.domain + ':' + location.port + '/web', {
+    var socket = io.connect("https://ai-car.herokuapp.com/web", {
       reconnection: false
     });
 
