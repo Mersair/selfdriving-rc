@@ -32,15 +32,14 @@ class CVClient(object):
     def __init__(self, server_addr, lower_channels, higher_channels):
         self.car_id = 'none'
         self.server_addr = server_addr
-        self.server_port = 5000
         self.lower_channels = lower_channels
         self.higher_channels = higher_channels
 
     def setup(self):
-        print('[INFO] Connecting to server http://{}:{}...'.format(
-            self.server_addr, self.server_port))
+        print('[INFO] Connecting to server http://{}...'.format(
+            self.server_addr))
         sio.connect(
-            'http://{}:{}'.format(self.server_addr, self.server_port),
+            'http://{}'.format(self.server_addr),
             transports=['websocket'],
             namespaces=['/cv'])
         time.sleep(2.0)
@@ -102,7 +101,7 @@ class CVClient(object):
             self.higher_channels[2] = v
 
 
-streamer = CVClient('0.0.0.0', [255, 255, 255], [0, 0, 0])
+streamer = CVClient('ai-car.herokuapp.com', [255, 255, 255], [0, 0, 0])
 @sio.on('carid2cv', namespace='/cv')
 def set_car_id(carid):
     if streamer.car_id == 'none':
@@ -161,7 +160,7 @@ def main(server_addr, lower_channels, higher_channels):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='MQP Dashboard Video Streamer')
     parser.add_argument(
-            '--server-addr',  type=str, default='0.0.0.0',
+            '--server-addr',  type=str, default='ai-car.herokuapp.com',
             help='The IP address or hostname of the SocketIO server.')
     parser.add_argument("--lowerArr", help="Lower Color Channel", default=[255, 255, 255])
     parser.add_argument("--higherArr", help="Higher Color Channel", default=[0, 0, 0])
