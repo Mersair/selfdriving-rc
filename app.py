@@ -54,13 +54,13 @@ def handle_cv_message(message):
     if len(image_array) < 5:
         image_array.appendleft(message)
         # post after append to make sure it is updated for the next request
-        car_json['image_buffer'] = image_array
+        car_json['image_buffer'] = list(image_array)
         setCar(message['carid'], car_json)
         # emit to server
         socketio.emit(image2web_string, message, namespace='/web')
         # pop and then update in redis again
         image_array.pop()
-        car_json['image_buffer'] = image_array
+        car_json['image_buffer'] = list(image_array)
         setCar(message['carid'], car_json)
 
 
@@ -72,13 +72,13 @@ def handle_cv_message(message):
     if len(filtered_array) < 5:
         filtered_array.appendleft(message)
         # post after append to make sure it is updated for the next request
-        car_json['image_buffer'] = filtered_array
+        car_json['image_buffer'] = list(filtered_array)
         setCar(message['carid'], car_json)
         # emit to server
         socketio.emit(filtered2web_string, message, namespace='/web')
         # pop and then update in redis again
         filtered_array.pop()
-        car_json['image_buffer'] = filtered_array
+        car_json['image_buffer'] = list(filtered_array)
         setCar(message['carid'], car_json)
 
 
