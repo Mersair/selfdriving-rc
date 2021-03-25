@@ -51,7 +51,7 @@ def handle_cv_message(message):
     image2web_string = 'image2web/' + message['carid']
     car_json = redis.get_car_json(message['carid'])
     image_array = deque(car_json['image_buffer'])
-    if len(image_array) < 5:
+    if len(image_array) < 20:
         image_array.appendleft(message)
         # post after append to make sure it is updated for the next request
         car_json['image_buffer'] = list(image_array)
@@ -69,7 +69,7 @@ def handle_cv_message(message):
     filtered2web_string = 'filtered2web/' + message['carid']
     car_json = redis.get_car_json(message['carid'])
     filtered_array = deque(car_json['image_buffer'])
-    if len(filtered_array) < 5:
+    if len(filtered_array) < 20:
         filtered_array.appendleft(message)
         # post after append to make sure it is updated for the next request
         car_json['image_buffer'] = list(filtered_array)
