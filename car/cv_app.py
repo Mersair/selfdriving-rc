@@ -140,7 +140,7 @@ def main(server_addr, lower_channels, higher_channels):
     # loop detection
     i = 0
     while True:
-        time.sleep(0.1)
+        time.sleep(0.5)
         frame = vs.read()
         frame = imutils.resize(frame, width=650)
 

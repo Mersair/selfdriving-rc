@@ -1,6 +1,7 @@
 from flask_socketio import SocketIO
 from flask import Flask, render_template, Response, jsonify, request, abort
 from random import randint
+from collections import deque
 import json
 import uuid
 from redisConn import RedisConn
@@ -12,6 +13,7 @@ redis = RedisConn()
 # Initialize the cars in the set
 initial_cars = {}
 redis.set_car_json('cars', json.dumps(initial_cars))
+
 
 # Video Socket logging, one namespace for computer vision client and one for the web client
 @socketio.on('connect', namespace='/web')
@@ -28,9 +30,11 @@ def disconnect_web():
 def connect_cv():
     print('[INFO] CV client connected: {}'.format(request.sid))
 
+
 @socketio.on('disconnect', namespace='/cv')
 def disconnect_cv():
     print('[INFO] CV client disconnected: {}'.format(request.sid))
+
 
 @socketio.on('channels2server', namespace='/cv')
 def color_channels_to_redis(message):
@@ -40,16 +44,42 @@ def color_channels_to_redis(message):
     car_json['higher_channels'] = json_data['higher_channels']
     setCar(json_data['carid'], car_json)
 
+
 # Video Socket message handlers
 @socketio.on('cvimage2server', namespace='/cv')
 def handle_cv_message(message):
     image2web_string = 'image2web/' + message['carid']
-    socketio.emit(image2web_string, message, namespace='/web')
+    car_json = redis.get_car_json(message['carid'])
+    image_array = deque(car_json['image_buffer'])
+    if len(image_array) < 5:
+        image_array.appendleft(message)
+        # post after append to make sure it is updated for the next request
+        car_json['image_buffer'] = image_array
+        setCar(message['carid'], car_json)
+        # emit to server
+        socketio.emit(image2web_string, message, namespace='/web')
+        # pop and then update in redis again
+        image_array.pop()
+        car_json['image_buffer'] = image_array
+        setCar(message['carid'], car_json)
+
 
 @socketio.on('cvfiltered2server', namespace='/cv')
 def handle_cv_message(message):
     filtered2web_string = 'filtered2web/' + message['carid']
-    socketio.emit(filtered2web_string, message, namespace='/web')
+    car_json = redis.get_car_json(message['carid'])
+    filtered_array = deque(car_json['image_buffer'])
+    if len(filtered_array) < 5:
+        filtered_array.appendleft(message)
+        # post after append to make sure it is updated for the next request
+        car_json['image_buffer'] = filtered_array
+        setCar(message['carid'], car_json)
+        # emit to server
+        socketio.emit(filtered2web_string, message, namespace='/web')
+        # pop and then update in redis again
+        filtered_array.pop()
+        car_json['image_buffer'] = filtered_array
+        setCar(message['carid'], car_json)
 
 
 def getCar(car_id):
@@ -62,6 +92,7 @@ def getCar(car_id):
 def setCar(car_id, car_data):
     car_json = json.dumps(car_data)
     redis.set_car_json(car_id, car_json)
+
 
 @app.errorhandler(404)
 def resource_not_found(e):
@@ -84,7 +115,9 @@ def enrollCar():
         "humidity_data": [],
         "imu_data": [],
         "hall_effect_data": [],
-        "battery_data": []
+        "battery_data": [],
+        "image_buffer": [],
+        "filtered_buffer": []
     }
     setCar(car_id, initial_configs)
     cars = redis.get_car_json('cars')
