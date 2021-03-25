@@ -56,30 +56,31 @@ def handle_cv_message(message):
         # post after append to make sure it is updated for the next request
         car_json['image_buffer'] = list(image_array)
         setCar(message['carid'], car_json)
-        # emit to server
-        socketio.emit(image2web_string, message, namespace='/web')
-        # pop and then update in redis again
-        image_array.pop()
-        car_json['image_buffer'] = list(image_array)
-        setCar(message['carid'], car_json)
+    # once we have pushed, we can pop and emit the latest message
+    return_message = image_array[(len(image_array)-1)]
+    image_array.pop()
+    car_json['image_buffer'] = list(image_array)
+    setCar(message['carid'], car_json)
+    # emit to server
+    socketio.emit(image2web_string, return_message, namespace='/web')
 
 
 @socketio.on('cvfiltered2server', namespace='/cv')
 def handle_cv_message(message):
     filtered2web_string = 'filtered2web/' + message['carid']
     car_json = redis.get_car_json(message['carid'])
-    filtered_array = deque(car_json['image_buffer'])
+    filtered_array = deque(car_json['filtered_buffer'])
     if len(filtered_array) < 20:
         filtered_array.appendleft(message)
         # post after append to make sure it is updated for the next request
-        car_json['image_buffer'] = list(filtered_array)
+        car_json['filtered_buffer'] = list(filtered_array)
         setCar(message['carid'], car_json)
-        # emit to server
-        socketio.emit(filtered2web_string, message, namespace='/web')
-        # pop and then update in redis again
-        filtered_array.pop()
-        car_json['image_buffer'] = list(filtered_array)
-        setCar(message['carid'], car_json)
+    # once we have pushed, we can pop and emit the latest message
+    return_message = filtered_array[(len(filtered_array) - 1)]
+    filtered_array.pop()
+    car_json['filtered_buffer'] = list(filtered_array)
+    setCar(message['carid'], car_json)
+    socketio.emit(filtered2web_string, return_message, namespace='/web')
 
 
 def getCar(car_id):
