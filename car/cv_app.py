@@ -140,15 +140,15 @@ def main(server_addr, lower_channels, higher_channels):
     # loop detection
     i = 0
     while True:
-        time.sleep(0.2)
+        time.sleep(0.1)
         frame = vs.read()
-        frame = imutils.resize(frame, width=650)
+        # frame = imutils.resize(frame, width=650)
 
-        # scale = 60
-        # width = int(frame.shape[1] * scale / 100)
-        # height = int(frame.shape[0] * scale / 100)
-        # dim = (width, height)
-        # frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
+        scale = 45
+        width = int(frame.shape[1] * scale / 100)
+        height = int(frame.shape[0] * scale / 100)
+        dim = (width, height)
+        frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
 
         output_frame = frame.copy()
         filtered_frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2HSV)
