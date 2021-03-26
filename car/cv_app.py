@@ -4,8 +4,8 @@ import time
 import socketio
 import base64
 import cv2
-import imutils
 import numpy as np
+import imutils
 import json
 
 # for debugging on, use
@@ -144,11 +144,17 @@ def main(server_addr, lower_channels, higher_channels):
         frame = vs.read()
         frame = imutils.resize(frame, width=650)
 
+        # scale = 60
+        # width = int(frame.shape[1] * scale / 100)
+        # height = int(frame.shape[0] * scale / 100)
+        # dim = (width, height)
+        # frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
+
         output_frame = frame.copy()
         filtered_frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2HSV)
         streamer.send_video_feed(output_frame, 'cvimage2server')
 
-        if i % 5 == 0:
+        if i % 3 == 0:
             masked = cv2.inRange(filtered_frame, np.array(streamer.lower_channels), np.array(streamer.higher_channels))
             streamer.send_video_feed(masked, 'cvfiltered2server')
         i += 1
