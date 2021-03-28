@@ -4,9 +4,7 @@ from rq import Worker, Queue, Connection
 
 listen = ['high', 'default', 'low']
 
-redis_url = os.getenv(os.environ.get("REDIS_URL"))
-
-conn = redis.from_url(redis_url)
+conn = redis.from_url(os.environ.get("REDIS_URL"))
 
 if __name__ == '__main__':
     with Connection(conn):
