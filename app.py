@@ -5,6 +5,11 @@ import json
 import uuid
 from redisConn import RedisConn
 
+# imports for worker process
+from rq import Queue
+from worker import conn
+q = Queue(connection=conn)
+
 app = Flask(__name__)
 socketio = SocketIO(app)
 redis = RedisConn()
@@ -47,13 +52,13 @@ def color_channels_to_redis(message):
 @socketio.on('cvimage2server', namespace='/cv')
 def handle_cv_message(message):
     image2web_string = 'image2web/' + message['carid']
-    socketio.emit(image2web_string, message, namespace='/web')
+    q.enqueue(socketio.emit(image2web_string, message, namespace='/web'), 'http://ai-car.herokuapp.com')
 
 
 @socketio.on('cvfiltered2server', namespace='/cv')
 def handle_cv_message(message):
     filtered2web_string = 'filtered2web/' + message['carid']
-    socketio.emit(filtered2web_string, message, namespace='/web')
+    q.enqueue(socketio.emit(filtered2web_string, message, namespace='/web'), 'http://ai-car.herokuapp.com')
 
 
 

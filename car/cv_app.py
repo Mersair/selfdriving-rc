@@ -160,8 +160,8 @@ def main(server_addr, lower_channels, higher_channels):
         time_difference = this_time - last_time
         if time_difference.total_seconds() >= 0.2:
             streamer.send_video_feed(output_frame, 'cvimage2server')
-        if time_difference.total_seconds() >= 0.3:
             streamer.send_video_feed(masked, 'cvfiltered2server')
+            last_time = this_time
 
         if streamer.check_exit():
             streamer.close()
