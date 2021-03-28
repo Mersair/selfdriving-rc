@@ -56,10 +56,10 @@ def handle_cv_message(message):
     image2web_string = 'image2web/' + message['carid']
     this_time = datetime.now()
     time_difference = this_time - last_time
-    print(time_difference)
-    if time_difference.total_seconds() >= 0.3:
+    if time_difference.total_seconds() >= 0.2:
         socketio.emit(image2web_string, message, namespace='/web')
-    last_time = this_time
+        last_time = this_time
+
 
 @socketio.on('cvfiltered2server', namespace='/cv')
 def handle_cv_message(message):
@@ -69,7 +69,7 @@ def handle_cv_message(message):
     time_difference = this_time - filtered_last_time
     if time_difference.total_seconds() >= 0.3:
         socketio.emit(filtered2web_string, message, namespace='/web')
-    filtered_last_time = this_time
+        filtered_last_time = this_time
 
 
 def getCar(car_id):
