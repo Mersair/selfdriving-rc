@@ -5,7 +5,6 @@ import socketio
 import base64
 import cv2
 import numpy as np
-import imutils
 import json
 
 # for debugging on, use
@@ -137,10 +136,8 @@ def main(server_addr, lower_channels, higher_channels):
     streamer = CVClient(server_addr, lower_channels, higher_channels)
     streamer.setup()
     sio.sleep(2.0)
-    # loop detection
-    i = 0
+
     while True:
-        time.sleep(0.1)
         frame = vs.read()
         # frame = imutils.resize(frame, width=650)
 
@@ -154,10 +151,9 @@ def main(server_addr, lower_channels, higher_channels):
         filtered_frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2HSV)
         streamer.send_video_feed(output_frame, 'cvimage2server')
 
-        if i % 3 == 0:
-            masked = cv2.inRange(filtered_frame, np.array(streamer.lower_channels), np.array(streamer.higher_channels))
-            streamer.send_video_feed(masked, 'cvfiltered2server')
-        i += 1
+        masked = cv2.inRange(filtered_frame, np.array(streamer.lower_channels), np.array(streamer.higher_channels))
+        streamer.send_video_feed(masked, 'cvfiltered2server')
+
         if streamer.check_exit():
             streamer.close()
             break

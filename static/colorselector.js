@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     let image2web_string = 'image2web/' + carid
     socket.on(image2web_string, (msg) => {
+        console.log("lane selection is streaming")
         click_elem.src = msg.image;
     });
 
