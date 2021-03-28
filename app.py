@@ -8,7 +8,8 @@ from redisConn import RedisConn
 # imports for worker process
 from rq import Queue
 from worker import conn
-q = Queue(connection=conn)
+q = Queue('high', connection=conn)
+q2 = Queue(connection=conn)
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -58,7 +59,7 @@ def handle_cv_message(message):
 @socketio.on('cvfiltered2server', namespace='/cv')
 def handle_cv_message(message):
     filtered2web_string = 'filtered2web/' + message['carid']
-    q.enqueue(socketio.emit(filtered2web_string, message, namespace='/web'), 'http://ai-car.herokuapp.com')
+    q2.enqueue(socketio.emit(filtered2web_string, message, namespace='/web'), 'http://ai-car.herokuapp.com')
 
 
 
