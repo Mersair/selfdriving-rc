@@ -1,7 +1,6 @@
 from flask_socketio import SocketIO
 from flask import Flask, render_template, Response, jsonify, request, abort
 from random import randint
-from datetime import datetime
 import json
 import uuid
 from redisConn import RedisConn
@@ -13,11 +12,6 @@ redis = RedisConn()
 # Initialize the cars in the set
 initial_cars = {}
 redis.set_car_json('cars', json.dumps(initial_cars))
-
-# Time differences for video streams
-last_time = datetime(2021, 1, 1)
-filtered_last_time = datetime(2021, 1, 1)
-
 
 # Video Socket logging, one namespace for computer vision client and one for the web client
 @socketio.on('connect', namespace='/web')
@@ -52,24 +46,15 @@ def color_channels_to_redis(message):
 # Video Socket message handlers
 @socketio.on('cvimage2server', namespace='/cv')
 def handle_cv_message(message):
-    global last_time
     image2web_string = 'image2web/' + message['carid']
-    this_time = datetime.now()
-    time_difference = this_time - last_time
-    if time_difference.total_seconds() >= 0.2:
-        socketio.emit(image2web_string, message, namespace='/web')
-        last_time = this_time
+    socketio.emit(image2web_string, message, namespace='/web')
 
 
 @socketio.on('cvfiltered2server', namespace='/cv')
 def handle_cv_message(message):
-    global filtered_last_time
     filtered2web_string = 'filtered2web/' + message['carid']
-    this_time = datetime.now()
-    time_difference = this_time - filtered_last_time
-    if time_difference.total_seconds() >= 0.3:
-        socketio.emit(filtered2web_string, message, namespace='/web')
-        filtered_last_time = this_time
+    socketio.emit(filtered2web_string, message, namespace='/web')
+
 
 
 def getCar(car_id):

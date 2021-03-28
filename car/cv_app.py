@@ -5,6 +5,7 @@ import socketio
 import base64
 import cv2
 import numpy as np
+from datetime import datetime
 import json
 
 # for debugging on, use
@@ -137,6 +138,9 @@ def main(server_addr, lower_channels, higher_channels):
     streamer.setup()
     sio.sleep(2.0)
 
+    # Time differences for video streams
+    last_time = datetime.now()
+
     while True:
         frame = vs.read()
         # frame = imutils.resize(frame, width=650)
@@ -149,10 +153,15 @@ def main(server_addr, lower_channels, higher_channels):
 
         output_frame = frame.copy()
         filtered_frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2HSV)
-        streamer.send_video_feed(output_frame, 'cvimage2server')
-
         masked = cv2.inRange(filtered_frame, np.array(streamer.lower_channels), np.array(streamer.higher_channels))
-        streamer.send_video_feed(masked, 'cvfiltered2server')
+
+        # Only send if sufficient time has passed
+        this_time = datetime.now()
+        time_difference = this_time - last_time
+        if time_difference.total_seconds() >= 0.2:
+            streamer.send_video_feed(output_frame, 'cvimage2server')
+        if time_difference.total_seconds() >= 0.3:
+            streamer.send_video_feed(masked, 'cvfiltered2server')
 
         if streamer.check_exit():
             streamer.close()
