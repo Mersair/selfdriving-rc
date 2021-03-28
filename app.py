@@ -56,7 +56,8 @@ def handle_cv_message(message):
     image2web_string = 'image2web/' + message['carid']
     this_time = datetime.now()
     time_difference = this_time - last_time
-    if time_difference.total_seconds() >= 0.1:
+    print(time_difference)
+    if time_difference.total_seconds() >= 0.3:
         socketio.emit(image2web_string, message, namespace='/web')
     last_time = this_time
 
