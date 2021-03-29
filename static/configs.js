@@ -82,11 +82,9 @@ const uscConfig = {
         labels: ["u1", "u2", "u3", "u4", "u5", "u6", "u7"],
         datasets: [{
             label: '',
-            backgroundColor: '#D2042D',
-            borderColor: '#D2042D',
+            backgroundColor: 'rgb(210, 4, 45, 0.3)',
+            borderColor: 'rgb(210, 4, 45, 1)',
             data: [],
-            fill: true,
-            fillOpacity: 0.3
         }],
     },
     options: {
