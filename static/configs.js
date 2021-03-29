@@ -86,6 +86,7 @@ const uscConfig = {
             borderColor: '#D2042D',
             data: [],
             fill: true,
+            fillOpacity: 0.3
         }],
     },
     options: {

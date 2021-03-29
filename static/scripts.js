@@ -38,7 +38,6 @@ function imuUpdate(data) {
 }
 
 function uscUpdate(data) {
-    uscConfig.data.labels.push(data.timestamp);
     uscConfig.data.datasets[0].data = data.ultrasonic_data
 }
 
