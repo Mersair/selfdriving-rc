@@ -65,7 +65,7 @@ function downloadCSV(data, carid){
    let csvContent = "data:text/csv;charset=utf-8,"
 
    rows = [];
-   rows.push(["timestamp", "battery", "hall_effect", "humidity", "imu_x", "imu_y", "imu_z", "ultrasonic", "temperature"])
+   rows.push(["timestamp", "battery", "hall_effect", "humidity", "temperature", "imu_x", "imu_y", "imu_z", "ultrasonics"]);
    let i;
    sensorData = JSON.parse(data);
    for(i=0; i<sensorData.temperature.length; i++){
@@ -73,11 +73,12 @@ function downloadCSV(data, carid){
         battery = sensorData.battery[i];
         hall_effect = sensorData.hall_effect[i];
         humidity = sensorData.humidity[i];
+        temperature = sensorData.temperature[i];
         imu_x = sensorData.imu[i][0];
         imu_y = sensorData.imu[i][1];
         imu_z = sensorData.imu[i][2];
-        temperature = sensorData.temperature[i];
-        rows.push([timestamp, battery, hall_effect, humidity, imu_x, imu_y, imu_z, temperature]);
+        ultrasonics = sensorData.ultrasonic[i];
+        rows.push([timestamp, battery, hall_effect, humidity, temperature, imu_x, imu_y, ultrasonics]);
    }
 
    rows.forEach(function(rowArray) {
