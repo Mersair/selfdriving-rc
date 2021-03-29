@@ -61,11 +61,12 @@ function hmdUpdate(data) {
     hmdConfig.data.datasets[0].data.push(data.humidity_data);
 }
 
-function downloadCSV(data, carid){
+function downloadCSV(data, name){
    let csvContent = "data:text/csv;charset=utf-8,"
 
    rows = [];
-   rows.push(["timestamp", "battery", "hall_effect", "humidity", "temperature", "imu_x", "imu_y", "imu_z", "ultrasonics"]);
+   rows.push(["timestamp", "battery", "hall_effect", "humidity", "temperature", "imu_x", "imu_y", "imu_z",
+        "ultrasonic 1", "ultrasonic 2", "ultrasonic 3", "ultrasonic 4", "ultrasonic 5", "ultrasonic 6", "ultrasonic 7"]);
    let i;
    sensorData = JSON.parse(data);
    for(i=0; i<sensorData.temperature.length; i++){
@@ -78,7 +79,7 @@ function downloadCSV(data, carid){
         imu_y = sensorData.imu[i][1];
         imu_z = sensorData.imu[i][2];
         ultrasonics = sensorData.ultrasonic[i];
-        rows.push([timestamp, battery, hall_effect, humidity, temperature, imu_x, imu_y, ultrasonics]);
+        rows.push([timestamp, battery, hall_effect, humidity, temperature, imu_x, imu_y, imu_z, ultrasonics]);
    }
 
    rows.forEach(function(rowArray) {
@@ -95,7 +96,7 @@ function downloadCSV(data, carid){
     var day = dateObj.getUTCDate();
     var year = dateObj.getUTCFullYear();
 
-    const download_string = carid + " " + year + "-" + month + "-" + day + " data.csv";
+    const download_string = name + " " + year + "-" + month + "-" + day + " data.csv";
     link.setAttribute("download", download_string);
     document.body.appendChild(link); // Required for FF
 
@@ -127,13 +128,14 @@ function stopCar(){
 
 function exportSensorData(){
     const carid = document.getElementById('car_id').innerText;
+    const friendly_name = document.getElementById('friendly_name').innerText;
     const source_string = "/api/client/" + carid + "/export/data";
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
            // Retrieve the sensor data from the car
            let sensorData = xhttp.response;
-           downloadCSV(sensorData, carid);
+           downloadCSV(sensorData, friendly_name);
         }
     };
     xhttp.open("GET", source_string, true);
