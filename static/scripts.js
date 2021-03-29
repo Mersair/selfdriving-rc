@@ -39,7 +39,7 @@ function imuUpdate(data) {
 
 function uscUpdate(data) {
     uscConfig.data.labels.push(data.timestamp);
-    uscConfig.data.datasets[0].data.push(data.ultrasonic_data)
+    uscConfig.data.datasets[0].data = data.ultrasonic_data
 }
 
 function hefUpdate(data) {
@@ -209,7 +209,7 @@ window.onload = function() {
     tmpChart = new Chart(tmpContext, tmpConfig);
     hmdChart = new Chart(hmdContext, hmdConfig);
 
-    sensorArr = [uscConfig, hefConfig, batConfig, tmpConfig, hmdConfig];
+    sensorArr = [hefConfig, batConfig, tmpConfig, hmdConfig];
     chartArr = [imuChart, uscChart, hefChart, batChart, tmpChart, hmdChart];
 
     const carid = document.getElementById('car_id').innerText;

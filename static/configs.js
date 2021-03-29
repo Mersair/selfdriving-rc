@@ -82,60 +82,36 @@ const uscConfig = {
         labels: ["u1", "u2", "u3", "u4", "u5", "u6", "u7"],
         datasets: [{
             label: '',
-            backgroundColor: 'rgb(209,51,255)',
-            borderColor: 'rgb(209,51,255)',
+            backgroundColor: '#D2042D',
+            borderColor: '#D2042D',
             data: [],
-            fill: false,
+            fill: true,
         }],
     },
     options: {
         legend: {
-            display: true,
-            position: 'top',
+            display: false
         },
         responsive: true,
         title: {
             display: true,
             text: 'Ultrasonic'
         },
-        tooltips: {
-            intersect: true,
-            custom: function(tooltip) {
-                if (!tooltip) return;
-                // disable displaying the color box;
-                tooltip.displayColors = false;
+        scale: {
+            angleLines: {
+                color: "#666"
             },
-            callbacks: {
-                title: function(tooltipItems, data) {
-                    return '';
-                },
-                label: function(tooltipItem, data) {
-                    return tooltipItem.yLabel;
-                }
+            gridLines: {
+                color: "#666"
+            },
+            ticks: {
+                showLabelBackdrop: false,
+                fontColor: "#b6b6b6",
+                beginAtZero: true,
+                min: 0,
+                max: 100,
+                stepSize: 20
             }
-        },
-        hover: {mode: 'point'},
-        scales: {
-            xAxes: [{
-                gridLines: {
-                    color: "#666"
-                },
-                display: true,
-                scaleLabel: {
-                    display: true,
-                    labelString: 'Time'
-                }
-            }],
-            yAxes: [{
-                gridLines: {
-                    color: "#666"
-                },
-                display: true,
-                scaleLabel: {
-                    display: true,
-                    labelString: 'Value'
-                }
-            }]
         }
     }
 };

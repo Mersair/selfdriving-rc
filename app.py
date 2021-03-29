@@ -176,7 +176,8 @@ def export_sensor_data(car_id):
         "battery": car_json['battery_data'],
         "temperature": car_json['temperature_data'],
         "humidity": car_json['humidity_data'],
-        "imu": car_json['imu_data']
+        "imu": car_json['imu_data'],
+        "ultrasonic": car_json['ultrasonic_data']
     })
 
 @app.route('/api/car/<car_id>/set/speed/<speed>', methods=['POST'])
