@@ -180,7 +180,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
             shiftSensor(sensorArr[i]);
         }
         shiftImuSensor();
-        shiftUscSensor();
         imuUpdate(data);
         uscUpdate(data);
         hefUpdate(data);

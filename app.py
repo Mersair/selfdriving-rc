@@ -145,6 +145,7 @@ def car_data(car_id):
     if request.method == 'POST':
         sensor_readings = request.get_json()
         new_readings = json.loads(redis.store_sensor_readings(car_id, car_json, sensor_readings))
+        print(new_readings)
         data2web_string = 'data2web/' + car_id
         socketio.emit(data2web_string, json.dumps(new_readings), namespace='/web')
         return '200 OK', 200
