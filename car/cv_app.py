@@ -28,14 +28,11 @@ def disconnect():
 
 
 class CVClient(object):
-    def __init__(self, server_addr, lower_channels, higher_channels, stream_fps):
+    def __init__(self, server_addr, lower_channels, higher_channels):
         self.car_id = 'none'
         self.server_addr = server_addr
         self.lower_channels = lower_channels
         self.higher_channels = higher_channels
-        self.stream_fps = stream_fps
-        self.last_update_time = time.time()
-        self.wait_time = (1 / self.stream_fps)
 
     def setup(self):
         print('[INFO] Connecting to server http://{}...'.format(
@@ -66,17 +63,14 @@ class CVClient(object):
         # return (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage) + b'\r\n')
 
     def send_video_feed(self, frame, route):
-        current_time = time.time()
-        if current_time - self.last_update_time > self.wait_time:
-            self.last_update_time = current_time
-            sio.emit(
-                route,
-                {
-                    'carid': self.car_id,
-                    'image': self._convert_image_to_jpeg(frame, self.lower_channels, self.higher_channels)
-                },
-                namespace='/cv'
-            )
+        sio.emit(
+            route,
+            {
+                'carid': self.car_id,
+                'image': self._convert_image_to_jpeg(frame, self.lower_channels, self.higher_channels)
+            },
+            namespace='/cv'
+        )
 
     # Set the car's color channels
     def set_color_channels(self, x, y):
@@ -106,7 +100,7 @@ class CVClient(object):
             self.higher_channels[2] = v
 
 
-streamer = CVClient('ai-car.herokuapp.com', [255, 255, 255], [0, 0, 0], 10)
+streamer = CVClient('ai-car.herokuapp.com', [255, 255, 255], [0, 0, 0])
 @sio.on('carid2cv', namespace='/cv')
 def set_car_id(carid):
     if streamer.car_id == 'none':
@@ -135,11 +129,13 @@ def set_car_id(carid):
         print('car\'s id is already', streamer.car_id)
 
 
-def main(server_addr, speed, lower_channels, higher_channels, stream_fps):
+def main(server_addr, speed, lower_channels, higher_channels):
     global streamer, output_frame, filtered_frame
     vs = VideoStream(src=0).start()
+    last_time = datetime.now()
     time.sleep(2.0)
-    streamer = CVClient(server_addr, lower_channels, higher_channels, stream_fps)
+
+    streamer = CVClient(server_addr, lower_channels, higher_channels)
     streamer.setup()
     sio.sleep(2.0)
 
@@ -157,8 +153,12 @@ def main(server_addr, speed, lower_channels, higher_channels, stream_fps):
         filtered_frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2HSV)
         masked = cv2.inRange(filtered_frame, np.array(streamer.lower_channels), np.array(streamer.higher_channels))
 
-        streamer.send_video_feed(output_frame, 'cvimage2server')
-        streamer.send_video_feed(masked, 'cvfiltered2server')
+        this_time = datetime.now()
+        time_difference = this_time - last_time
+        if time_difference.total_seconds() >= 0.2:
+            streamer.send_video_feed(output_frame, 'cvimage2server')
+            streamer.send_video_feed(masked, 'cvfiltered2server')
+            last_time = this_time
 
         if streamer.check_exit():
             streamer.close()
@@ -173,6 +173,5 @@ if __name__ == "__main__":
     parser.add_argument("--speed", help="Car Speed", default=0)
     parser.add_argument("--lowerArr", help="Lower Color Channel", default=[255, 255, 255])
     parser.add_argument("--higherArr", help="Higher Color Channel", default=[0, 0, 0])
-    parser.add_argument('--stream-fps', type=float, default=20.0)
     args = parser.parse_args()
-    main(args.server_addr, args.speed, args.lowerArr, args.higherArr, args.stream_fps)
+    main(args.server_addr, args.speed, args.lowerArr, args.higherArr)

@@ -76,6 +76,70 @@ const imuConfig = {
     }
 };
 
+const uscConfig = {
+    type: 'radar',
+    data: {
+        labels: ["u1", "u2", "u3", "u4", "u5", "u6", "u7"],
+        datasets: [{
+            label: '',
+            backgroundColor: 'rgb(209,51,255)',
+            borderColor: 'rgb(209,51,255)',
+            data: [],
+            fill: false,
+        }],
+    },
+    options: {
+        legend: {
+            display: true,
+            position: 'top',
+        },
+        responsive: true,
+        title: {
+            display: true,
+            text: 'Ultrasonic'
+        },
+        tooltips: {
+            intersect: true,
+            custom: function(tooltip) {
+                if (!tooltip) return;
+                // disable displaying the color box;
+                tooltip.displayColors = false;
+            },
+            callbacks: {
+                title: function(tooltipItems, data) {
+                    return '';
+                },
+                label: function(tooltipItem, data) {
+                    return tooltipItem.yLabel;
+                }
+            }
+        },
+        hover: {mode: 'point'},
+        scales: {
+            xAxes: [{
+                gridLines: {
+                    color: "#666"
+                },
+                display: true,
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Time'
+                }
+            }],
+            yAxes: [{
+                gridLines: {
+                    color: "#666"
+                },
+                display: true,
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Value'
+                }
+            }]
+        }
+    }
+};
+
 const hefConfig = {
     type: 'line',
     data: {
@@ -208,8 +272,8 @@ const tmpConfig = {
         labels: [],
         datasets: [{
             label: '',
-            backgroundColor: `#FF652F`,
-            borderColor: `#FF652F`,
+            backgroundColor: '#FF652F',
+            borderColor: '#FF652F',
             data: [],
             fill: false,
         }],

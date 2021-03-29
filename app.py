@@ -89,6 +89,7 @@ def enrollCar():
         "temperature_data": [],
         "humidity_data": [],
         "imu_data": [],
+        "ultrasonic_data": [],
         "hall_effect_data": [],
         "battery_data": []
     }
