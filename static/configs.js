@@ -96,6 +96,22 @@ const uscConfig = {
             display: true,
             text: 'Ultrasonic'
         },
+        tooltips: {
+            intersect: true,
+            custom: function(tooltip) {
+                if (!tooltip) return;
+                // disable displaying the color box;
+                tooltip.displayColors = false;
+            },
+            callbacks: {
+                title: function(tooltipItems, data) {
+                    return '';
+                },
+                label: function(tooltipItem, data) {
+                    return tooltipItem.yLabel;
+                }
+            }
+        },
         scale: {
             angleLines: {
                 color: "#666"
