@@ -4,6 +4,7 @@ from random import randint
 import json
 import uuid
 from redisConn import RedisConn
+import time
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -26,10 +27,11 @@ def disconnect_web():
 
 @socketio.on('connect', namespace='/cv')
 def connect_cv():
-    car_id = enrollCar()
-    print(car_id)
-    redis.link_ids(request.sid, car_id)
+    print('[INFO] Connecting CV client: {}'.format(request.sid))
+    time.sleep(5)
     print('[INFO] CV client connected: {}'.format(request.sid))
+    car_id = enrollCar()
+    redis.link_ids(request.sid, car_id)
 
 
 @socketio.on('disconnect', namespace='/cv')
