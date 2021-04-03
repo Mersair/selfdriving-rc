@@ -28,8 +28,10 @@ def disconnect_web():
 @socketio.on('connect', namespace='/cv')
 def connect_cv():
     print('[INFO] CV client connected: {}'.format(request.sid))
-    # car_id = enrollCar()
-    # redis.link_ids(request.sid, car_id)
+    print("here we go")
+    car_id = enrollCar()
+    print(car_id)
+    redis.link_ids(request.sid, car_id)
 
 
 @socketio.on('disconnect', namespace='/cv')
