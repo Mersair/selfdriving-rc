@@ -199,14 +199,14 @@ def get_speed(car_id):
     return json.dumps(car_json['speed'])
 
 @app.route('/api/car/<car_id>/set/steering/<steering>', methods=['POST'])
-def set_speed(car_id, steering):
+def set_steering(car_id, steering):
     car_json = redis.get_car_json(car_id)
     car_json['steering'] = steering
     redis.set_car_json(car_id, json.dumps(car_json))
     return '200 OK', 200
 
 @app.route('/api/car/<car_id>/get/steering')
-def get_speed(car_id):
+def get_steering(car_id):
     car_json = redis.get_car_json(car_id)
     return json.dumps(car_json['steering'])
 
