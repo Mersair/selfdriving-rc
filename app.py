@@ -27,11 +27,9 @@ def disconnect_web():
 
 @socketio.on('connect', namespace='/cv')
 def connect_cv():
-    print('[INFO] Connecting CV client: {}'.format(request.sid))
-    time.sleep(5)
     print('[INFO] CV client connected: {}'.format(request.sid))
-    car_id = enrollCar()
-    redis.link_ids(request.sid, car_id)
+    # car_id = enrollCar()
+    # redis.link_ids(request.sid, car_id)
 
 
 @socketio.on('disconnect', namespace='/cv')
