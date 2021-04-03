@@ -114,6 +114,9 @@
     speed.innerHTML = (speedSlider.value)*5;
 
     speedSlider.oninput = function() {
+        console.log("speed")
+        console.log(this)
+        console.log(this.value)
         let speedValue = (this.value)*5;
         speed.innerHTML = speedValue;
 
@@ -128,6 +131,9 @@
     steering.innerHTML = (steeringSlider.value)*5;
 
     steeringSlider.oninput = function() {
+        console.log("steering")
+        console.log(this)
+        console.log(this.value)
         let steeringValue = (this.value)*5;
         steering.innerHTML = steeringValue;
 
