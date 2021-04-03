@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import time
 from adafruit_servokit import ServoKit
-from car.colorThreshholdFilter import ColorThreshholdFilter
+from colorThreshholdFilter import ColorThreshholdFilter
 import RPi.GPIO as GPIO
 
 # imports for server
@@ -57,7 +57,7 @@ class CVClient(object):
     def close(self):
         sio.disconnect()
 
-    def _convert_image_to_jpeg(self, image, lower_channels, higher_channels):
+    def _convert_image_to_jpeg(self, image):
         # masked = cv2.inRange(image, np.array(lower_channels), np.array(higher_channels))
         # encode the frame in JPEG format
         (flag, encodedImage) = cv2.imencode(".jpg", image)
@@ -74,7 +74,7 @@ class CVClient(object):
             route,
             {
                 'carid': self.car_id,
-                'image': self._convert_image_to_jpeg(frame, self.lower_channels, self.higher_channels)
+                'image': self._convert_image_to_jpeg(frame)
             },
             namespace='/cv'
         )

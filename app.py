@@ -26,11 +26,15 @@ def disconnect_web():
 
 @socketio.on('connect', namespace='/cv')
 def connect_cv():
+    car_id = enrollCar()
+    print(car_id)
+    redis.link_ids(request.sid, car_id)
     print('[INFO] CV client connected: {}'.format(request.sid))
 
 
 @socketio.on('disconnect', namespace='/cv')
 def disconnect_cv():
+    redis.remove_car(request.sid)
     print('[INFO] CV client disconnected: {}'.format(request.sid))
 
 
@@ -83,6 +87,7 @@ def enrollCar():
     car_id = str(uuid.uuid4())
     initial_configs = {
         "speed": 0,
+        "steering": 100,
         "lower_channels": [255, 255, 255],
         "higher_channels": [0, 0, 0],
         "timestamp": [],
@@ -98,7 +103,7 @@ def enrollCar():
     cars[car_id] = getFriendlyCarName()
     redis.set_car_json('cars', json.dumps(cars))
     socketio.emit('carid2cv', car_id, namespace='/cv')
-    return jsonify({'id': car_id}), 200
+    return car_id, 200
     
 
 @app.route('/dashboard/<car_id>')
@@ -192,6 +197,18 @@ def set_speed(car_id, speed):
 def get_speed(car_id):
     car_json = redis.get_car_json(car_id)
     return json.dumps(car_json['speed'])
+
+@app.route('/api/car/<car_id>/set/steering/<steering>', methods=['POST'])
+def set_speed(car_id, steering):
+    car_json = redis.get_car_json(car_id)
+    car_json['steering'] = steering
+    redis.set_car_json(car_id, json.dumps(car_json))
+    return '200 OK', 200
+
+@app.route('/api/car/<car_id>/get/steering')
+def get_speed(car_id):
+    car_json = redis.get_car_json(car_id)
+    return json.dumps(car_json['steering'])
 
 @app.route('/api/car/<car_id>/send/coordinates', methods=['POST'])
 def send_coordinates(car_id):

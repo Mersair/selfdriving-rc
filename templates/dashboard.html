@@ -44,23 +44,27 @@
             </div>
             <br>
             <h3> Top Speed </h3>
-            <div id="slide-container" style="margin-top: 10px">
-                <input type="range" min="0" max="20" class="slider" id="myRange">
+            <div class="slide-container" style="margin-top: 10px">
+                <input type="range" min="0" max="20" class="slider" id="speedRange">
                 <p class="output">Speed: <span id="speed"></span>%</p>
             </div>
-            <h3> Driving Options </h3>
-            <div class="flex-container2" style="margin-top: 10px; margin-bottom: 15px">
-                <select style="cursor:pointer">
-                    <option selected disabled>Driving Mode</option>
-                    <option value="Race Mode">Race Mode</option>
-                    <option value="Sensor Mode">Sensor Mode</option>
-                </select>
-                <select style="cursor:pointer">
-                    <option selected disabled>Driving Algorithm</option>
-                    <option value="Lane Following">Lane Following</option>
-                    <option value="Raytracing">Raytracing</option>
-                </select>
+            <h3> Steering Aggressiveness </h3>
+            <div class="slide-container" style="margin-top: 10px">
+                <input type="range" min="10" max="40" class="slider" id="steeringRange">
+                <p class="output">Max Angle: <span id="steering"></span>%</p>
             </div>
+<!--            <div class="flex-container2" style="margin-top: 10px; margin-bottom: 15px">-->
+<!--                <select style="cursor:pointer">-->
+<!--                    <option selected disabled>Driving Mode</option>-->
+<!--                    <option value="Race Mode">Race Mode</option>-->
+<!--                    <option value="Sensor Mode">Sensor Mode</option>-->
+<!--                </select>-->
+<!--                <select style="cursor:pointer">-->
+<!--                    <option selected disabled>Driving Algorithm</option>-->
+<!--                    <option value="Lane Following">Lane Following</option>-->
+<!--                    <option value="Raytracing">Raytracing</option>-->
+<!--                </select>-->
+<!--            </div>-->
             <div class="center">
                 <button id="selectColorButton" onclick="document.location.href += this.value" style="text-align:center"
                     value="/colorselector">Select Lane Color</button>
@@ -104,18 +108,32 @@
         </div>
     </div>
     <script>
-    let slider = document.getElementById("myRange");
+    const carid = document.getElementById('car_id').innerText;
+    let speedSlider = document.getElementById("speedRange");
     let speed = document.getElementById("speed");
-    speed.innerHTML = (slider.value)*5;
+    speed.innerHTML = (speedSlider.value)*5;
 
-    slider.oninput = function() {
+    speedSlider.oninput = function() {
         let speedValue = (this.value)*5;
         speed.innerHTML = speedValue;
 
-        const carid = document.getElementById('car_id').innerText;
-        const source_string = "/api/car/" + carid + "/set/speed/" + speedValue;
+        const speed_string = "/api/car/" + carid + "/set/speed/" + speedValue;
         var xhttp = new XMLHttpRequest();
-        xhttp.open("POST", source_string, true);
+        xhttp.open("POST", speed_string, true);
+        xhttp.send();
+    }
+
+    let steeringSlider = document.getElementById("steeringRange");
+    let steering = document.getElementById("steering");
+    steering.innerHTML = (steeringSlider.value)*5;
+
+    steeringSlider.oninput = function() {
+        let steeringValue = (this.value)*5;
+        steering.innerHTML = steeringValue;
+
+        const steering_string = "/api/car/" + carid + "/set/steering/" + steeringValue;
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", steering_string, true);
         xhttp.send();
     }
     </script>

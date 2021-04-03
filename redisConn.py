@@ -18,6 +18,14 @@ class RedisConn:
     def set_car_json(self, car_id, car_json):
         r.set(car_id, car_json)
 
+    def link_ids(self, socket_id, car_id):
+        r.set(socket_id, car_id)
+
+    def remove_car(self, socket_id):
+        car_id = r.get(socket_id)
+        r.delete(socket_id)
+        r.delete(car_id)
+
     def store_sensor_readings(self, car_id, car_json, sensor_readings):
         # Append the new readings to the historic data
         sensor_time = datetime.now().strftime('%H:%M:%S')

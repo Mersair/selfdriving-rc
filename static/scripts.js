@@ -214,7 +214,7 @@ window.onload = function() {
     chartArr = [imuChart, uscChart, hefChart, batChart, tmpChart, hmdChart];
 
     const carid = document.getElementById('car_id').innerText;
-    let slider = document.getElementById("myRange");
+    let speedSlider = document.getElementById("speedRange");
     let speed = document.getElementById("speed");
     const speed_string = "/api/car/" + carid + "/get/speed";
     var xhttp = new XMLHttpRequest();
@@ -223,9 +223,24 @@ window.onload = function() {
            // Retrieve the speed value from the dashboard
            let speedValue = JSON.parse(xhttp.response);
            speed.innerHTML = speedValue;
-           slider.value  = (speedValue/5);
+           speedSlider.value  = (speedValue/5);
         }
     };
     xhttp.open("GET", speed_string, true);
+    xhttp.send();
+
+    let steeringSlider = document.getElementById("steeringRange");
+    let steering = document.getElementById("steering");
+    const steering_string = "/api/car/" + carid + "/get/steering";
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           // Retrieve the speed value from the dashboard
+           let steeringValue = JSON.parse(xhttp.response);
+           steering.innerHTML = steeringValue;
+           steeringSlider.value  = (steeringValue/5);
+        }
+    };
+    xhttp.open("GET", steering_string, true);
     xhttp.send();
 };
