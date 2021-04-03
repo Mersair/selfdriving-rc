@@ -221,7 +221,7 @@ window.onload = function() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
            // Retrieve the speed value from the dashboard
-           let speedValue = JSON.parse(xhttp.response);
+           let speedValue = xhttp.response;
            speed.innerHTML = speedValue;
            speedSlider.value  = (speedValue/5);
         }
@@ -236,7 +236,7 @@ window.onload = function() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
            // Retrieve the speed value from the dashboard
-           let steeringValue = JSON.parse(xhttp.response);
+           let steeringValue = xhttp.response;
            steering.innerHTML = steeringValue;
            steeringSlider.value  = (steeringValue/5);
         }
