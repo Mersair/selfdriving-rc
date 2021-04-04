@@ -188,14 +188,17 @@ def export_sensor_data(car_id):
 
 @app.route('/api/car/<car_id>/set/speed/<speed>', methods=['POST'])
 def set_speed(car_id, speed):
+    print(speed)
     car_json = redis.get_car_json(car_id)
     car_json['speed'] = speed
+    print(car_json)
     redis.set_car_json(car_id, json.dumps(car_json))
     return '200 OK', 200
 
 @app.route('/api/car/<car_id>/get/speed')
 def get_speed(car_id):
     car_json = redis.get_car_json(car_id)
+    print(car_json)
     print("speed:", json.dumps(car_json['speed']))
     return json.dumps(car_json['speed'])
 
