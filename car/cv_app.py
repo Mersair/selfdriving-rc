@@ -97,8 +97,8 @@ class CVClient(object):
             self.higher_channels[2] = v
 
 
-# streamer = CVClient('ai-car.herokuapp.com', [255, 255, 255], [0, 0, 0])
-streamer = CVClient('127.0.0.1:5000', [255, 255, 255], [0, 0, 0])
+streamer = CVClient('ai-car.herokuapp.com', [255, 255, 255], [0, 0, 0])
+# streamer = CVClient('127.0.0.1:5000', [255, 255, 255], [0, 0, 0])
 @sio.on('carid2cv', namespace='/cv')
 def set_car_id(carid):
     if streamer.car_id == 'none':
@@ -165,12 +165,12 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='MQP Dashboard Video Streamer')
-    # parser.add_argument(
-    #         '--server-addr',  type=str, default='ai-car.herokuapp.com',
-    #         help='The IP address or hostname of the SocketIO server.')
     parser.add_argument(
-            '--server-addr',  type=str, default='127.0.0.1:5000',
+            '--server-addr',  type=str, default='ai-car.herokuapp.com',
             help='The IP address or hostname of the SocketIO server.')
+    # parser.add_argument(
+    #         '--server-addr',  type=str, default='127.0.0.1:5000',
+    #         help='The IP address or hostname of the SocketIO server.')
     parser.add_argument("--speed", help="Car Speed", default=0)
     parser.add_argument("--steering", help="Car Steering", default=100)
     parser.add_argument("--lowerArr", help="Lower Color Channel", default=[255, 255, 255])
