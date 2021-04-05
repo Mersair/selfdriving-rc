@@ -47,9 +47,6 @@ class CVClient(object):
     def check_exit(self):
         pass
 
-    def close(self):
-        sio.disconnect()
-
     def _convert_image_to_jpeg(self, image, lower_channels, higher_channels):
         # masked = cv2.inRange(image, np.array(lower_channels), np.array(higher_channels))
         # encode the frame in JPEG format
@@ -100,7 +97,8 @@ class CVClient(object):
             self.higher_channels[2] = v
 
 
-streamer = CVClient('ai-car.herokuapp.com', [255, 255, 255], [0, 0, 0])
+# streamer = CVClient('ai-car.herokuapp.com', [255, 255, 255], [0, 0, 0])
+streamer = CVClient('127.0.0.1:5000', [255, 255, 255], [0, 0, 0])
 @sio.on('carid2cv', namespace='/cv')
 def set_car_id(carid):
     if streamer.car_id == 'none':
@@ -129,7 +127,7 @@ def set_car_id(carid):
         print('car\'s id is already', streamer.car_id)
 
 
-def main(server_addr, speed, lower_channels, higher_channels):
+def main(server_addr, speed, steering, lower_channels, higher_channels):
     global streamer, output_frame, filtered_frame
     vs = VideoStream(src=0).start()
     last_time = datetime.now()
@@ -156,8 +154,8 @@ def main(server_addr, speed, lower_channels, higher_channels):
         this_time = datetime.now()
         time_difference = this_time - last_time
         if time_difference.total_seconds() >= 0.2:
-            streamer.send_video_feed(output_frame, 'cvimage2server')
-            streamer.send_video_feed(masked, 'cvfiltered2server')
+            # streamer.send_video_feed(output_frame, 'cvimage2server')
+            # streamer.send_video_feed(masked, 'cvfiltered2server')
             last_time = this_time
 
         if streamer.check_exit():
@@ -167,11 +165,15 @@ def main(server_addr, speed, lower_channels, higher_channels):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='MQP Dashboard Video Streamer')
+    # parser.add_argument(
+    #         '--server-addr',  type=str, default='ai-car.herokuapp.com',
+    #         help='The IP address or hostname of the SocketIO server.')
     parser.add_argument(
-            '--server-addr',  type=str, default='ai-car.herokuapp.com',
+            '--server-addr',  type=str, default='127.0.0.1:5000',
             help='The IP address or hostname of the SocketIO server.')
     parser.add_argument("--speed", help="Car Speed", default=0)
+    parser.add_argument("--steering", help="Car Steering", default=100)
     parser.add_argument("--lowerArr", help="Lower Color Channel", default=[255, 255, 255])
     parser.add_argument("--higherArr", help="Higher Color Channel", default=[0, 0, 0])
     args = parser.parse_args()
-    main(args.server_addr, args.speed, args.lowerArr, args.higherArr)
+    main(args.server_addr, args.speed, args.steering, args.lowerArr, args.higherArr)

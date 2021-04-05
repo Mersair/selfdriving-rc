@@ -221,8 +221,7 @@ window.onload = function() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
            // Retrieve the speed value from the dashboard
-           console.log(xhttp.response);
-           let speedValue = xhttp.response;
+           let speedValue = JSON.parse(xhttp.response);
            speed.innerHTML = speedValue;
            speedSlider.value  = (speedValue/5);
         }
@@ -233,16 +232,15 @@ window.onload = function() {
     let steeringSlider = document.getElementById("steeringRange");
     let steering = document.getElementById("steering");
     const steering_string = "/api/car/" + carid + "/get/steering";
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
+    var xhttp2 = new XMLHttpRequest();
+    xhttp2.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
            // Retrieve the speed value from the dashboard
-           console.log(xhttp.response);
-           let steeringValue = xhttp.response;
+           let steeringValue = JSON.parse(xhttp2.response);
            steering.innerHTML = steeringValue;
            steeringSlider.value  = (steeringValue/5);
         }
     };
-    xhttp.open("GET", steering_string, true);
-    xhttp.send();
+    xhttp2.open("GET", steering_string, true);
+    xhttp2.send();
 };

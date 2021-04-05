@@ -136,7 +136,7 @@ def set_car_id(carid):
         print('car\'s id is already', streamer.car_id)
 
 
-def main(server_addr, speed, lower_channels, higher_channels):
+def main(server_addr, speed, steering, lower_channels, higher_channels):
     global streamer, output_frame, filtered_frame
     # vs = VideoStream(src=0).start()
     cap = cv2.VideoCapture(0)
@@ -240,9 +240,10 @@ if __name__ == "__main__":
             '--server-addr',  type=str, default='ai-car.herokuapp.com',
             help='The IP address or hostname of the SocketIO server.')
     parser.add_argument("--speed", help="Car Speed", default=0)
+    parser.add_argument("--steering", help="Car Steering", default=100)
     parser.add_argument("--lowerArr", help="Lower Color Channel", default=[255, 255, 255])
     parser.add_argument("--higherArr", help="Higher Color Channel", default=[0, 0, 0])
     args = parser.parse_args()
-    main(args.server_addr, args.speed, args.lowerArr, args.higherArr)
+    main(args.server_addr, args.speed, args.steering, args.lowerArr, args.higherArr)
 
 

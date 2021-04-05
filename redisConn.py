@@ -22,9 +22,13 @@ class RedisConn:
         r.set(socket_id, car_id)
 
     def remove_car(self, socket_id):
-        car_id = r.get(socket_id)
+        car_id_encoded = r.get(socket_id)
+        car_id = car_id_encoded.decode('utf-8')
         r.delete(socket_id)
         r.delete(car_id)
+        cars = self.get_car_json('cars')
+        cars.pop(car_id)
+        self.set_car_json('cars', json.dumps(cars))
 
     def store_sensor_readings(self, car_id, car_json, sensor_readings):
         # Append the new readings to the historic data
