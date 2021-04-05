@@ -214,10 +214,10 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
         web_width = int(frame.shape[1] * scale / 100)
         web_height = int(frame.shape[0] * scale / 100)
         dim = (web_width, web_height)
-        output_frame = cv2.resize(frame.copy(), dim, interpolation=cv2.INTER_AREA)
+        output_frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
 
-        filtered_frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2HSV)
-        masked = colorThreshholdFilter.apply(filtered_frame, streamer.lower_channels, streamer.higher_channels)
+        filtered_frame = cv2.cvtColor(output_frame, cv2.COLOR_BGR2HSV)
+        masked = cv2.inRange(filtered_frame, np.array(streamer.lower_channels), np.array(streamer.higher_channels))
 
         this_time = datetime.now()
         time_difference = this_time - last_time
@@ -226,9 +226,14 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
             streamer.send_video_feed(masked, 'cvfiltered2server')
             last_time = this_time
 
+        leftlane = np.nan
+        rightlane = np.nan
+
         # These two look at the color filtered images and gets the median of the lanes.
-        leftlane = np.median([coordinate[1] for coordinate in np.argwhere(frame1 == 255)])
-        rightlane = (2 * int(width) / 3) + np.median([coordinate[1] for coordinate in np.argwhere(frame2 == 255)])
+        if len(np.argwhere(frame1 == 255)) > 0:
+           leftlane = np.median([coordinate[1] for coordinate in np.argwhere(frame1 == 255)])
+        if len(np.argwhere(frame2 == 255)) > 0:
+           rightlane = (2 * int(width) / 3) + np.median([coordinate[1] for coordinate in np.argwhere(frame2 == 255)])
 
         # This code just sees the difference from the middle
         offsetl = (middle - leftlane)
