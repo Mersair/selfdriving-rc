@@ -70,21 +70,14 @@ def setCar(car_id, car_data):
     car_json = json.dumps(car_data)
     redis.set_car_json(car_id, car_json)
 
-
-@app.errorhandler(404)
-def resource_not_found(e):
-    return jsonify(error=str(e)), 404
-
-@app.route('/')
-def selectCar():
-    cars = redis.get_car_json('cars')
-    return render_template("landing.html", cars=cars), 200
-
-@app.route('/api/enroll')
 def enrollCar(sid):
+    # generate a unique id for the car
     car_id = str(uuid.uuid4())
+
+    # link the socket id with the car id to maintain it on disconnect
     redis.link_ids(sid, car_id)
-    # dump to make sure?
+
+    # create the inital car configs on startup
     initial_configs = {
         "speed": 0,
         "steering": 100,
@@ -98,13 +91,28 @@ def enrollCar(sid):
         "hall_effect_data": [],
         "battery_data": []
     }
+
+    # write the car to redis
     setCar(car_id, initial_configs)
+
+    # add the car to the cars list (with a friendly display name)
     cars = redis.get_car_json('cars')
     cars[car_id] = getFriendlyCarName()
     redis.set_car_json('cars', json.dumps(cars))
+
+    # send the carid to the car
     socketio.emit('carid2cv', car_id, namespace='/cv')
     return jsonify({"id": car_id}), 200
-    
+
+
+@app.errorhandler(404)
+def resource_not_found(e):
+    return jsonify(error=str(e)), 404
+
+@app.route('/')
+def selectCar():
+    cars = redis.get_car_json('cars')
+    return render_template("landing.html", cars=cars), 200
 
 @app.route('/dashboard/<car_id>')
 def carDashboard(car_id):
@@ -228,8 +236,22 @@ def reset_color_channels(car_id):
     socketio.emit(resetcolors2cv_string, namespace='/cv')
     return '200 OK', 200
 
-@app.route('/api/car/<car_id>/startup/controls')
-def get_startup_controls(car_id):
+@app.route('/api/car/<car_id>/terminate')
+def terminate_program(car_id):
+    terminate2cv_string = 'terminate2cv/' + car_id
+    socketio.emit(terminate2cv_string, namespace='/cv')
+    return '200 OK', 200
+
+@app.route('/api/car/<car_id>/stop/drive')
+def stop_driving(car_id):
+    stop2cv_string = 'stop2cv/' + car_id
+    socketio.emit(stop2cv_string, namespace='/cv')
+    return '200 OK', 200
+
+@app.route('/api/car/<car_id>/drive')
+def begin_driving(car_id):
+    drive2cv_string = 'drive2cv/' + car_id
+    socketio.emit(drive2cv_string, namespace='/cv')
     car_json = redis.get_car_json(car_id)
     return jsonify({
         "speed": car_json['speed'],
@@ -237,6 +259,7 @@ def get_startup_controls(car_id):
         "lower_channels": car_json['lower_channels'],
         "higher_channels": car_json['higher_channels']
     })
+
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

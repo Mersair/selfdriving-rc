@@ -103,12 +103,26 @@ function downloadCSV(data, name){
     link.click();
 }
 
+function terminate(){
+    const carid = document.getElementById('car_id').innerText;
+
+    const source_string = "/api/car/" + carid + "/terminate";
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           window.open("/", "_self");
+        }
+    };
+    xhttp.open("GET", source_string, true);
+    xhttp.send();
+}
+
 function startCar(){
     const carid = document.getElementById('car_id').innerText;
     document.getElementById("startCar").hidden = true;
     document.getElementById("stopCar").hidden = false;
 
-    const source_string = "/api/car/" + carid + "/startup/controls";
+    const source_string = "/api/car/" + carid + "/drive";
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -121,9 +135,25 @@ function startCar(){
     xhttp.send();
 }
 
-function stopCar(){
+function stopCar() {
+    const carid = document.getElementById('car_id').innerText;
     document.getElementById("stopCar").hidden = true;
     document.getElementById("startCar").hidden = false;
+
+    const stop_string = "/api/car/" + carid + "/set/speed/0";
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           updateSpeedSlider(carid);
+        }
+    };
+    xhttp.open("POST", stop_string, true);
+    xhttp.send();
+
+    const stop2_string = "/api/car/" + carid + "/stop/drive";
+    var xhttp2 = new XMLHttpRequest();
+    xhttp2.open("GET", stop2_string, true);
+    xhttp2.send();
 }
 
 function exportSensorData(){
@@ -194,6 +224,40 @@ document.addEventListener("DOMContentLoaded", function(event) {
     })
 });
 
+function updateSpeedSlider(carid) {
+    let speedSlider = document.getElementById("speedRange");
+    let speed = document.getElementById("speed");
+    const speed_string = "/api/car/" + carid + "/get/speed";
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           // Retrieve the speed value from the dashboard
+           let speedValue = JSON.parse(xhttp.response);
+           speed.innerHTML = speedValue;
+           speedSlider.value  = (speedValue/5);
+        }
+    };
+    xhttp.open("GET", speed_string, true);
+    xhttp.send();
+}
+
+function updateSteeringSlider(carid){
+    let steeringSlider = document.getElementById("steeringRange");
+    let steering = document.getElementById("steering");
+    const steering_string = "/api/car/" + carid + "/get/steering";
+    var xhttp2 = new XMLHttpRequest();
+    xhttp2.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           // Retrieve the speed value from the dashboard
+           let steeringValue = JSON.parse(xhttp2.response);
+           steering.innerHTML = steeringValue;
+           steeringSlider.value  = (steeringValue/5);
+        }
+    };
+    xhttp2.open("GET", steering_string, true);
+    xhttp2.send();
+}
+
 window.onload = function() {
     imuContext = document.getElementById('imuChart').getContext('2d');
     uscContext = document.getElementById('uscChart').getContext('2d');
@@ -214,33 +278,6 @@ window.onload = function() {
     chartArr = [imuChart, uscChart, hefChart, batChart, tmpChart, hmdChart];
 
     const carid = document.getElementById('car_id').innerText;
-    let speedSlider = document.getElementById("speedRange");
-    let speed = document.getElementById("speed");
-    const speed_string = "/api/car/" + carid + "/get/speed";
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-           // Retrieve the speed value from the dashboard
-           let speedValue = JSON.parse(xhttp.response);
-           speed.innerHTML = speedValue;
-           speedSlider.value  = (speedValue/5);
-        }
-    };
-    xhttp.open("GET", speed_string, true);
-    xhttp.send();
-
-    let steeringSlider = document.getElementById("steeringRange");
-    let steering = document.getElementById("steering");
-    const steering_string = "/api/car/" + carid + "/get/steering";
-    var xhttp2 = new XMLHttpRequest();
-    xhttp2.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-           // Retrieve the speed value from the dashboard
-           let steeringValue = JSON.parse(xhttp2.response);
-           steering.innerHTML = steeringValue;
-           steeringSlider.value  = (steeringValue/5);
-        }
-    };
-    xhttp2.open("GET", steering_string, true);
-    xhttp2.send();
+    updateSpeedSlider(carid);
+    updateSteeringSlider(carid);
 };

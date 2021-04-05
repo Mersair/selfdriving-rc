@@ -5,6 +5,7 @@ import time
 from adafruit_servokit import ServoKit
 from colorThreshholdFilter import ColorThreshholdFilter
 import RPi.GPIO as GPIO
+from subprocess import call
 
 # imports for server
 import argparse
@@ -36,6 +37,8 @@ def disconnect():
 
 class CVClient(object):
     def __init__(self, server_addr, lower_channels, higher_channels):
+        self.drive = False
+        self.exit = False
         self.car_id = 'none'
         self.server_addr = server_addr
         self.lower_channels = lower_channels
@@ -50,12 +53,6 @@ class CVClient(object):
             namespaces=['/cv'])
         time.sleep(2.0)
         return self
-
-    def check_exit(self):
-        pass
-
-    def close(self):
-        sio.disconnect()
 
     def _convert_image_to_jpeg(self, image):
         # masked = cv2.inRange(image, np.array(lower_channels), np.array(higher_channels))
@@ -110,10 +107,19 @@ class CVClient(object):
 streamer = CVClient('ai-car.herokuapp.com', [255, 255, 255], [0, 0, 0])
 @sio.on('carid2cv', namespace='/cv')
 def set_car_id(carid):
+    # make sure the car does not already have an id
+
     if streamer.car_id == 'none':
+        # set the car id to the streamer
         print('setting car id to', carid)
         streamer.car_id = carid
 
+        # write it to a file on the car
+        f = open("/etc/selfdriving-rc/car_id.txt", "w")
+        f.write(carid)
+        f.close()
+
+        # socket connection for coordinates to be sent to the car
         coordinates2cv_string = 'coordinates2cv/' + streamer.car_id
         @sio.on(coordinates2cv_string, namespace='/cv')
         def coordinates_to_hsv(message):
@@ -126,11 +132,30 @@ def set_car_id(carid):
             })
             sio.emit('channels2server', color_channels, namespace='/cv')
 
+        # socket connection to reset the colors on the car
         resetcolors2cv_string = 'resetcolors2cv/' + streamer.car_id
         @sio.on(resetcolors2cv_string, namespace='/cv')
         def reset_color_channels():
             streamer.higher_channels = [0, 0, 0]
             streamer.lower_channels = [255, 255, 255]
+
+        # socket on terminate driving
+        terminate2cv_string = 'terminate2cv/' + streamer.car_id
+        @sio.on(terminate2cv_string, namespace='/cv')
+        def terminate():
+            streamer.exit = True
+
+        # socket to reset drive trigger
+        stop2cv_string = 'stop2cv/' + streamer.car_id
+        @sio.on(stop2cv_string, namespace='/cv')
+        def stop_driving():
+            streamer.drive = False
+
+        # socket on start driving
+        drive2cv_string = 'drive2cv/' + streamer.car_id
+        @sio.on(drive2cv_string, namespace='/cv')
+        def drive():
+            streamer.drive = True
 
     else:
         print('car\'s id is already', streamer.car_id)
@@ -154,14 +179,22 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
     kit = ServoKit(channels=16)  # Initializes the servo shield
     kit.servo[0].angle = 90  # Sets wheels forward
     kit.continuous_servo[1].throttle = 0  # Sets speed to zero
-
     kit.servo[0].angle = 90
+    max_speed = 1
 
     while True:
-        # frame = vs.read()
-        # frame = imutils.resize(frame, width=650)
+        if streamer.exit:
+            break
+
+        if streamer.drive:
+            continue
+
+        # need to set speed, steering, color values from etc files
 
         # Take each frame
+
+        # frame = vs.read()
+        # frame = imutils.resize(frame, width=650)
         _, frame = cap.read()
         height, width, channels = frame.shape
         middle = width / 2
@@ -193,10 +226,6 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
             streamer.send_video_feed(masked, 'cvfiltered2server')
             last_time = this_time
 
-        if streamer.check_exit():
-            streamer.close()
-            break
-
         # These two look at the color filtered images and gets the median of the lanes.
         leftlane = np.median([coordinate[1] for coordinate in np.argwhere(frame1 == 255)])
         rightlane = (2 * int(width) / 3) + np.median([coordinate[1] for coordinate in np.argwhere(frame2 == 255)])
@@ -222,17 +251,18 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
             peroffset = -0.33
 
         # This transforms the percentage into proper angle format
-        angleset = 90 + (180 * peroffset)
+        angleset = 90 + (180 * peroffset * (steering/100))
 
         # Sets the angle
         kit.servo[0].angle = angleset
 
         # kit.continuous_servo[1].throttle = (0.3*(1-(2*abs(peroffset)))) #This is an option equation for slowing down in turns. We have to play around with the numbers.
-        kit.continuous_servo[1].throttle = speed  # This sets the speed for the car. the range is 0 to 1. 0.15 is the slowest it can go in our tests.
+        kit.continuous_servo[1].throttle = max_speed*(speed/100)  # This sets the speed for the car. the range is 0 to 1. 0.15 is the slowest it can go in our tests.
 
     kit.continuous_servo[1].throttle = 0
     kit.servo[0].angle = 90
-    cv2.destroyAllWindows()
+    sio.disconnect()
+    call("sleep 10; sudo shutdown -h now")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='MQP Dashboard Video Streamer')
