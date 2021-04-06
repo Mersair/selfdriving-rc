@@ -5,7 +5,7 @@ import time
 from adafruit_servokit import ServoKit
 from colorThreshholdFilter import ColorThreshholdFilter
 import RPi.GPIO as GPIO
-from subprocess import call
+import subprocess
 
 # imports for server
 import argparse
@@ -267,7 +267,7 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
     kit.continuous_servo[1].throttle = 0
     kit.servo[0].angle = 90
     sio.disconnect()
-    call("sleep 10; sudo shutdown -h now")
+    subprocess.run("sleep 10; sudo shutdown -h now", shell=True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='MQP Dashboard Video Streamer')
