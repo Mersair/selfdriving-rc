@@ -29,18 +29,26 @@
     <h1 id="friendly_name">{{friendly_name}}</h1>
     <br>
     <h3>Car ID:</h3>
-    <h3 id="car_id">{{carid}}</h3>
     <div class="divider"></div>
     <div class="flex-container" style="margin-top: 10px">
-        <div class="cameraContainer">
-            <img id="streamer-image" src="">
+        <div class="flex-container3">
+            <div>
+                <h3 id="car_id" style="margin-right:1em">{{carid}}</h3>
+                <button id="disableVideo" class="smallControlButton" onclick="disableVideo()"
+                        style="text-align:center float:right">Disable Video</button>
+                <button id="enableVideo" hidden class="smallControlButton" onclick="enableVideo()"
+                        style="text-align:center float:right">Enable Video</button>
+            </div>
+            <div class="cameraContainer">
+                <img id="streamer-image" src="">
+            </div>
         </div>
         <div id="controlContainer">
             <h2 style="text-align:center; color:black; font-weight:bold"> Vehicle Controls </h2>
             <h3> Start/Stop Autonomous Driving </h3>
             <div class="flex-container2" style="margin-top: 10px">
-                <button id="startCar" class="controlButton" onclick="startCar()">Start</button>
-                <button id="stopCar" hidden class="controlButton" onclick="stopCar()">Stop</button>
+                <button id="startCar" style="text-align:center" class="controlButton" onclick="startCar()">Start</button>
+                <button id="stopCar" hidden style="text-align:center" class="controlButton" onclick="stopCar()">Stop</button>
             </div>
             <br>
             <h3> Top Speed </h3>
@@ -65,9 +73,16 @@
 <!--                    <option value="Raytracing">Raytracing</option>-->
 <!--                </select>-->
 <!--            </div>-->
-            <div class="center">
-                <button id="selectColorButton" onclick="document.location.href += this.value" style="text-align:center"
-                    value="/colorselector">Select Lane Color</button>
+            <div class="flex-container2">
+                <div>
+                    <span>Direction:&nbsp</span>
+                    <label class="switch" style="vertical-align:middle">
+                        <input id="directionSwitch" type="checkbox" checked>
+                        <span class="toggle round"></span>
+                    </label>
+                </div>
+                <button id="selectColorButton" class="smallControlButton" onclick="document.location.href += this.value"
+                        style="text-align:center" value="/colorselector">Select Lane Color</button>
             </div>
             <br>
         </div>
@@ -138,6 +153,14 @@
         var xhttp2 = new XMLHttpRequest();
         xhttp2.open("POST", steering_string, true);
         xhttp2.send();
+    }
+
+    let directionSwitch = document.getElementById("directionSwitch")
+    directionSwitch.oninput = function() {
+        const direction_string = "/api/car/" + carid + "/toggle/direction";
+        var xhttp3 = new XMLHttpRequest();
+        xhttp3.open("GET", direction_string, true);
+        xhttp3.send();
     }
     </script>
 </body>

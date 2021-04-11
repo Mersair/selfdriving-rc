@@ -77,10 +77,12 @@ def enrollCar(sid):
     # link the socket id with the car id to maintain it on disconnect
     redis.link_ids(sid, car_id)
 
-    # create the inital car configs on startup
+    # create the initial car configs on startup
     initial_configs = {
         "speed": 0,
         "steering": 100,
+        "direction": 1,
+        "video_stream": True,
         "lower_channels": [255, 255, 255],
         "higher_channels": [0, 0, 0],
         "timestamp": [],
@@ -260,6 +262,42 @@ def begin_driving(car_id):
         "higher_channels": car_json['higher_channels']
     })
 
+@app.route('/api/car/<car_id>/get/direction')
+def get_direction(car_id):
+    car_json = redis.get_car_json(car_id)
+    return json.dumps(car_json['direction'])
+
+@app.route('/api/car/<car_id>/toggle/direction')
+def toggle_driving_direction(car_id):
+    car_json = redis.get_car_json(car_id)
+    car_json['direction'] = -1*car_json['direction']
+    redis.set_car_json(car_id, json.dumps(car_json))
+    direction2cv_string = 'direction2cv/' + car_id
+    socketio.emit(direction2cv_string, namespace='/cv')
+    return '200 OK', 200
+
+@app.route('/api/car/<car_id>/get/stream')
+def is_streaming(car_id):
+    car_json = redis.get_car_json(car_id)
+    return json.dumps(car_json["video_stream"])
+
+@app.route('/api/car/<car_id>/disable/video')
+def disable_video(car_id):
+    car_json = redis.get_car_json(car_id)
+    car_json['video_stream'] = False
+    redis.set_car_json(car_id, json.dumps(car_json))
+    disable2cv_string = 'disable2cv/' + car_id
+    socketio.emit(disable2cv_string, namespace='/cv')
+    return '200 OK', 200
+
+@app.route('/api/car/<car_id>/enable/video')
+def enable_video(car_id):
+    car_json = redis.get_car_json(car_id)
+    car_json['video_stream'] = True
+    redis.set_car_json(car_id, json.dumps(car_json))
+    enable2cv_string = 'enable2cv/' + car_id
+    socketio.emit(enable2cv_string, namespace='/cv')
+    return '200 OK', 200
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

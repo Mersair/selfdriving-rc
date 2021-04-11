@@ -258,6 +258,69 @@ function updateSteeringSlider(carid){
     xhttp2.send();
 }
 
+function updateToggleDirection(carid){
+    let directionSwitch = document.getElementById("directionSwitch");
+    const direction_string = "/api/car/" + carid + "/get/direction";
+    var xhttp3 = new XMLHttpRequest();
+    xhttp3.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           // Retrieve the speed value from the dashboard
+           let directionValue = JSON.parse(xhttp3.response);
+           if (directionValue == 1) {
+              directionSwitch.checked = true
+           }
+           else {
+              directionSwitch.checked = false
+           }
+        }
+    };
+    xhttp3.open("GET", direction_string, true);
+    xhttp3.send();
+}
+
+function enableVideo() {
+    const carid = document.getElementById('car_id').innerText;
+    document.getElementById("enableVideo").hidden = true;
+    document.getElementById("disableVideo").hidden = false;
+    document.getElementById("selectColorButton").disabled = false;
+
+    const source_string = "/api/car/" + carid + "/enable/video";
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", source_string, true);
+    xhttp.send();
+}
+
+function disableVideo() {
+    const carid = document.getElementById('car_id').innerText;
+    document.getElementById("enableVideo").hidden = false;
+    document.getElementById("disableVideo").hidden = true;
+    document.getElementById("selectColorButton").disabled = true;
+
+    const source_string = "/api/car/" + carid + "/disable/video";
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", source_string, true);
+    xhttp.send();
+}
+
+function updateVideo(carid) {
+    const video_string = "/api/car/" + carid + "/get/stream";
+    var xhttp4 = new XMLHttpRequest();
+    xhttp4.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+           // Retrieve the speed value from the dashboard
+           let is_streaming = JSON.parse(xhttp4.response);
+           if (is_streaming) {
+              enableVideo();
+           }
+           else {
+              disableVideo();
+           }
+        }
+    };
+    xhttp4.open("GET", video_string, true);
+    xhttp4.send();
+}
+
 window.onload = function() {
     imuContext = document.getElementById('imuChart').getContext('2d');
     uscContext = document.getElementById('uscChart').getContext('2d');
@@ -278,6 +341,8 @@ window.onload = function() {
     chartArr = [imuChart, uscChart, hefChart, batChart, tmpChart, hmdChart];
 
     const carid = document.getElementById('car_id').innerText;
+    updateVideo(carid);
     updateSpeedSlider(carid);
     updateSteeringSlider(carid);
+    updateToggleDirection(carid);
 };
