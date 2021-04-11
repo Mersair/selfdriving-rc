@@ -29,6 +29,8 @@ def disconnect():
 
 class CVClient(object):
     def __init__(self, server_addr, lower_channels, higher_channels):
+        self.stream = True
+        self.direction = 1
         self.drive = False
         self.exit = False
         self.car_id = 'none'
@@ -107,10 +109,10 @@ def set_car_id(carid):
         print('setting car id to', carid)
         streamer.car_id = carid
 
-        # write it to a file on the car
-        f = open("/etc/selfdriving-rc/car_id.txt", "w")
-        f.write(carid)
-        f.close()
+        # write it to a file on the car (not needed for testing)
+        # f = open("/etc/selfdriving-rc/car_id.txt", "w")
+        # f.write(carid)
+        # f.close()
 
         # socket connection for coordinates to be sent to the car
         coordinates2cv_string = 'coordinates2cv/' + streamer.car_id
@@ -150,6 +152,25 @@ def set_car_id(carid):
         def drive():
             streamer.drive = True
 
+        # socket on toggle direction
+        direction2cv_string = 'direction2cv/' + streamer.car_id
+        @sio.on(direction2cv_string, namespace='/cv')
+        def toggle_direction():
+            streamer.direction = -1 * streamer.direction
+
+        # sockets for enabling/disabling video
+        disable2cv_string = 'disable2cv/' + streamer.car_id
+        @sio.on(disable2cv_string, namespace='/cv')
+        def disable_video():
+            streamer.stream = False
+            print(streamer.stream)
+
+        enable2cv_string = 'enable2cv/' + streamer.car_id
+        @sio.on(enable2cv_string, namespace='/cv')
+        def enable_video():
+            streamer.stream = True
+            print(streamer.stream)
+
     else:
         print('car\'s id is already', streamer.car_id)
 
@@ -187,8 +208,8 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
         this_time = datetime.now()
         time_difference = this_time - last_time
         if time_difference.total_seconds() >= 0.2:
-            #streamer.send_video_feed(output_frame, 'cvimage2server')
-            #streamer.send_video_feed(masked, 'cvfiltered2server')
+            streamer.send_video_feed(output_frame, 'cvimage2server')
+            streamer.send_video_feed(masked, 'cvfiltered2server')
             last_time = this_time
 
     print("terminating driving code")

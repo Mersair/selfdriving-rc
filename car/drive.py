@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import time
 from adafruit_servokit import ServoKit
-from colorThreshholdFilter import ColorThreshholdFilter
+from filters import ColorThreshholdFilter
 import RPi.GPIO as GPIO
 import subprocess
 
@@ -37,6 +37,8 @@ def disconnect():
 
 class CVClient(object):
     def __init__(self, server_addr, lower_channels, higher_channels):
+        self.stream = True
+        self.direction = 1
         self.drive = False
         self.exit = False
         self.car_id = 'none'
@@ -157,6 +159,25 @@ def set_car_id(carid):
         def drive():
             streamer.drive = True
 
+        # socket on toggle direction
+        direction2cv_string = 'direction2cv/' + streamer.car_id
+        @sio.on(direction2cv_string, namespace='/cv')
+        def toggle_direction():
+            streamer.direction = -1 * streamer.direction
+
+        # sockets for enabling/disabling video
+        disable2cv_string = 'disable2cv/' + streamer.car_id
+        @sio.on(disable2cv_string, namespace='/cv')
+        def disable_video():
+            streamer.stream = False
+            print(streamer.stream)
+
+        enable2cv_string = 'enable2cv/' + streamer.car_id
+        @sio.on(enable2cv_string, namespace='/cv')
+        def enable_video():
+            streamer.stream = True
+            print(streamer.stream)
+
     else:
         print('car\'s id is already', streamer.car_id)
 
@@ -180,36 +201,14 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
     kit.servo[0].angle = 90  # Sets wheels forward
     kit.continuous_servo[1].throttle = 0  # Sets speed to zero
     kit.servo[0].angle = 90
-    max_speed = 1
+    max_speed = 0.5
 
+    inc = 1
     while True:
         if streamer.exit:
             break
 
-        if streamer.drive:
-            continue
-
-        # need to set speed, steering, color values from etc files
-
-        # Take each frame
-
-        # frame = vs.read()
-        # frame = imutils.resize(frame, width=650)
         _, frame = cap.read()
-        height, width, channels = frame.shape
-        middle = width / 2
-
-        # The following code segments the camera input to do different calculations
-        frame1init = frame[150:300, 0:int(int(width) / 3)]
-        frame3 = frame[(height - 60):(height - 20),
-                 int(int(width) / 3):int(2 * int(width) / 3)]  # Frame 3 gets the bottom of the screen
-        frame2init = frame[150:300, int(2 * int(width) / 3):int(width)]
-
-        # these are the color filters. The values are the RGB min and max values. the color filter makes every pixel in that range white and everything else black
-        # CHANGE THESE VALUES FOR THE LANES
-        frame1 = colorThreshholdFilter.apply(frame1init, [92, 115, 149], [100, 247, 199])
-        frame2 = colorThreshholdFilter.apply(frame2init, [92, 115, 149], [100, 247, 199])
-
         scale = 75
         web_width = int(frame.shape[1] * scale / 100)
         web_height = int(frame.shape[0] * scale / 100)
@@ -220,11 +219,40 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
         masked = cv2.inRange(filtered_frame, np.array(streamer.lower_channels), np.array(streamer.higher_channels))
 
         this_time = datetime.now()
-        time_difference = this_time - last_time
-        if time_difference.total_seconds() >= 0.2:
-            streamer.send_video_feed(output_frame, 'cvimage2server')
-            streamer.send_video_feed(masked, 'cvfiltered2server')
-            last_time = this_time
+        if streamer.stream:
+            time_difference = this_time - last_time
+            if time_difference.total_seconds() >= 0.3:
+                streamer.send_video_feed(output_frame, 'cvimage2server')
+                streamer.send_video_feed(masked, 'cvfiltered2server')
+                last_time = this_time
+
+        if not streamer.drive:
+            kit.continuous_servo[1].throttle = 0
+            kit.servo[0].angle = 90
+            continue
+
+        if inc % 21 == 0:
+            speed_file = open('/etc/selfdriving-rc/car_speed.txt', 'r')
+            speed_str = speed_file.read()
+            speed = speed_str.replace('"', '')
+            speed = int(speed)
+            speed_file.close()
+            inc = 0
+        inc += 1
+
+        height, width, channels = frame.shape
+        middle = width / 2
+
+        # The following code segments the camera input to do different calculations
+        frame1init = frame[150:300, 0:int(int(width) / 3)]
+        # frame3 = frame[(height - 60):(height - 20),
+        #          int(int(width) / 3):int(2 * int(width) / 3)]  # Frame 3 gets the bottom of the screen
+        frame2init = frame[150:300, int(2 * int(width) / 3):int(width)]
+
+        # these are the color filters. The values are the RGB min and max values. the color filter makes every pixel in that range white and everything else black
+        # CHANGE THESE VALUES FOR THE LANES
+        frame1 = colorThreshholdFilter.apply(frame1init, [92, 115, 149], [100, 247, 199])
+        frame2 = colorThreshholdFilter.apply(frame2init, [92, 115, 149], [100, 247, 199])
 
         leftlane = np.nan
         rightlane = np.nan
@@ -260,9 +288,8 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
 
         # Sets the angle
         kit.servo[0].angle = angleset
-
         # kit.continuous_servo[1].throttle = (0.3*(1-(2*abs(peroffset)))) #This is an option equation for slowing down in turns. We have to play around with the numbers.
-        kit.continuous_servo[1].throttle = max_speed*(speed/100)  # This sets the speed for the car. the range is 0 to 1. 0.15 is the slowest it can go in our tests.
+        kit.continuous_servo[1].throttle = streamer.direction * (max_speed*(speed/100))  # This sets the speed for the car. the range is 0 to 1. 0.15 is the slowest it can go in our tests.
 
     kit.continuous_servo[1].throttle = 0
     kit.servo[0].angle = 90
