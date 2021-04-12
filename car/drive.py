@@ -170,13 +170,11 @@ def set_car_id(carid):
         @sio.on(disable2cv_string, namespace='/cv')
         def disable_video():
             streamer.stream = False
-            print(streamer.stream)
 
         enable2cv_string = 'enable2cv/' + streamer.car_id
         @sio.on(enable2cv_string, namespace='/cv')
         def enable_video():
             streamer.stream = True
-            print(streamer.stream)
 
     else:
         print('car\'s id is already', streamer.car_id)
@@ -232,11 +230,21 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
             continue
 
         if inc % 21 == 0:
-            speed_file = open('/etc/selfdriving-rc/car_speed.txt', 'r')
+            # speed request
+            speed_file = open('/etc/selfdriving-rc/car_speed', 'r')
             speed_str = speed_file.read()
             speed = speed_str.replace('"', '')
             speed = int(speed)
             speed_file.close()
+
+            # steering request
+            steering_file = open('/etc/selfdriving-rc/car_steering', 'r')
+            steering_str = steering_file.read()
+            steering = steering_str.replace('"', '')
+            steering = int(steering)
+            steering_file.close()
+
+            # reset increment
             inc = 0
         inc += 1
 
@@ -250,9 +258,11 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
         frame2init = frame[150:300, int(2 * int(width) / 3):int(width)]
 
         # these are the color filters. The values are the RGB min and max values. the color filter makes every pixel in that range white and everything else black
-        # CHANGE THESE VALUES FOR THE LANES
-        frame1 = colorThreshholdFilter.apply(frame1init, [92, 115, 149], [100, 247, 199])
-        frame2 = colorThreshholdFilter.apply(frame2init, [92, 115, 149], [100, 247, 199])
+        # Blue Painter Tape Default
+        # frame1 = colorThreshholdFilter.apply(frame1init, [92, 115, 149], [100, 247, 199])
+        # frame2 = colorThreshholdFilter.apply(frame2init, [92, 115, 149], [100, 247, 199])
+        frame1 = colorThreshholdFilter.apply(frame1init, streamer.lower_channels, streamer.higher_channels)
+        frame2 = colorThreshholdFilter.apply(frame2init, streamer.lower_channels, streamer.higher_channels)
 
         leftlane = np.nan
         rightlane = np.nan
