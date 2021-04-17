@@ -121,6 +121,7 @@ function startCar(){
     const carid = document.getElementById('car_id').innerText;
     document.getElementById("startCar").hidden = true;
     document.getElementById("stopCar").hidden = false;
+    document.getElementById("selectColorButton").disabled = true;
 
     const source_string = "/api/car/" + carid + "/drive";
     var xhttp = new XMLHttpRequest();
@@ -139,6 +140,7 @@ function stopCar() {
     const carid = document.getElementById('car_id').innerText;
     document.getElementById("stopCar").hidden = true;
     document.getElementById("startCar").hidden = false;
+    document.getElementById("selectColorButton").disabled = false;
 
     const stop_string = "/api/car/" + carid + "/set/speed/0";
     var xhttp = new XMLHttpRequest();
