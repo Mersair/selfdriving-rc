@@ -53,12 +53,12 @@
             <br>
             <h3> Top Speed </h3>
             <div class="slide-container" style="margin-top: 10px">
-                <input type="range" min="0" max="20" class="slider" id="speedRange">
+                <input type="range" min="0" max="100" class="slider" id="speedRange">
                 <p class="output">Speed: <span id="speed"></span>%</p>
             </div>
             <h3> Steering Aggressiveness </h3>
             <div class="slide-container" style="margin-top: 10px">
-                <input type="range" min="10" max="40" class="slider" id="steeringRange">
+                <input type="range" min="10" max="30" class="slider" id="steeringRange">
                 <p class="output">Max Angle: <span id="steering"></span>%</p>
             </div>
 <!--            <div class="flex-container2" style="margin-top: 10px; margin-bottom: 15px">-->
@@ -129,10 +129,10 @@
     const carid = document.getElementById('car_id').innerText;
     let speedSlider = document.getElementById("speedRange");
     let speed = document.getElementById("speed");
-    speed.innerHTML = (speedSlider.value)*5;
+    speed.innerHTML = (speedSlider.value)*1;
 
     speedSlider.oninput = function() {
-        let speedValue = (this.value)*5;
+        let speedValue = (this.value)*1;
         speed.innerHTML = speedValue;
 
         const speed_string = "/api/car/" + carid + "/set/speed/" + speedValue;

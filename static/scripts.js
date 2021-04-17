@@ -234,7 +234,7 @@ function updateSpeedSlider(carid) {
            // Retrieve the speed value from the dashboard
            let speedValue = JSON.parse(xhttp.response);
            speed.innerHTML = speedValue;
-           speedSlider.value  = (speedValue/5);
+           speedSlider.value  = (speedValue/1);
         }
     };
     xhttp.open("GET", speed_string, true);

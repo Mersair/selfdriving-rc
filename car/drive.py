@@ -191,15 +191,12 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
     streamer.setup()
     sio.sleep(2.0)
 
-    # ser=serial.Serial("/dev/ttyACM0",9600)  #change ACM number as found from ls /dev/tty/ACM*
-    # ser.baudrate=960
-
     colorThreshholdFilter = ColorThreshholdFilter()
     kit = ServoKit(channels=16)  # Initializes the servo shield
     kit.servo[0].angle = 90  # Sets wheels forward
     kit.continuous_servo[1].throttle = 0  # Sets speed to zero
-    kit.servo[0].angle = 90
-    max_speed = 0.5
+    scale = 75
+    max_speed = 1
 
     inc = 1
     while True:
@@ -207,17 +204,18 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
             break
 
         _, frame = cap.read()
-        scale = 75
-        web_width = int(frame.shape[1] * scale / 100)
-        web_height = int(frame.shape[0] * scale / 100)
-        dim = (web_width, web_height)
-        output_frame = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
-
-        filtered_frame = cv2.cvtColor(output_frame, cv2.COLOR_BGR2HSV)
-        masked = cv2.inRange(filtered_frame, np.array(streamer.lower_channels), np.array(streamer.higher_channels))
 
         this_time = datetime.now()
         if streamer.stream:
+            frame_copy = frame.copy()
+            web_width = int(frame.shape[1] * scale / 100)
+            web_height = int(frame.shape[0] * scale / 100)
+            dim = (web_width, web_height)
+            output_frame = cv2.resize(frame_copy, dim, interpolation=cv2.INTER_AREA)
+
+            filtered_frame = cv2.cvtColor(output_frame, cv2.COLOR_BGR2HSV)
+            masked = cv2.inRange(filtered_frame, np.array(streamer.lower_channels), np.array(streamer.higher_channels))
+
             time_difference = this_time - last_time
             if time_difference.total_seconds() >= 0.3:
                 streamer.send_video_feed(output_frame, 'cvimage2server')
@@ -250,55 +248,42 @@ def main(server_addr, speed, steering, lower_channels, higher_channels):
 
         height, width, channels = frame.shape
         middle = width / 2
+        uph=int(height/2.2)
+        downh=int(height/1.7)
+        frame1init = frame[uph:downh, 0:int(int(width) / 3)]
+        frame2init = frame[uph:downh, int(2 * int(width) / 3):int(width)]
 
-        # The following code segments the camera input to do different calculations
-        frame1init = frame[150:300, 0:int(int(width) / 3)]
-        # frame3 = frame[(height - 60):(height - 20),
-        #          int(int(width) / 3):int(2 * int(width) / 3)]  # Frame 3 gets the bottom of the screen
-        frame2init = frame[150:300, int(2 * int(width) / 3):int(width)]
+        frame1 = colorThreshholdFilter.apply(frame1init, [86, 95, 153], [100, 253, 216])
+        frame2 = colorThreshholdFilter.apply(frame2init, [86, 95, 153], [100, 253, 216])
 
-        # these are the color filters. The values are the RGB min and max values. the color filter makes every pixel in that range white and everything else black
-        # Blue Painter Tape Default
-        # frame1 = colorThreshholdFilter.apply(frame1init, [92, 115, 149], [100, 247, 199])
-        # frame2 = colorThreshholdFilter.apply(frame2init, [92, 115, 149], [100, 247, 199])
-        frame1 = colorThreshholdFilter.apply(frame1init, streamer.lower_channels, streamer.higher_channels)
-        frame2 = colorThreshholdFilter.apply(frame2init, streamer.lower_channels, streamer.higher_channels)
+        leftlane = np.mean([coordinate[1] for coordinate in np.argwhere(frame1 == 255)])
+        rightlane = (2 * int(width) / 3) + np.mean([coordinate[1] for coordinate in np.argwhere(frame2 == 255)])
 
-        leftlane = np.nan
-        rightlane = np.nan
-
-        # These two look at the color filtered images and gets the median of the lanes.
-        if len(np.argwhere(frame1 == 255)) > 0:
-           leftlane = np.median([coordinate[1] for coordinate in np.argwhere(frame1 == 255)])
-        if len(np.argwhere(frame2 == 255)) > 0:
-           rightlane = (2 * int(width) / 3) + np.median([coordinate[1] for coordinate in np.argwhere(frame2 == 255)])
-
-        # This code just sees the difference from the middle
         offsetl = (middle - leftlane)
         offsetr = (rightlane - middle)
 
-        # If no pixels are detected it means that the lane is far away (out of camera FOV). This code just sets the lane as far away.
         if np.isnan(offsetr):
-            offsetr = 300
+            offsetr = middle
         if np.isnan(offsetl):
-            offsetl = 300
+            offsetl = middle
 
-        # This code just turns the offsets into a percentage value
         offset = offsetr - offsetl
-        peroffset = offset / (width)
+        peroffset = offset / width
 
-        # This code sets a hard limit for the turn angle. This is to reduce the stress on the wheel joints
         if peroffset > 0.33:
             peroffset = 0.33
         if peroffset < -0.33:
             peroffset = -0.33
 
-        # This transforms the percentage into proper angle format
         angleset = 90 + (180 * peroffset * (steering/100))
 
-        # Sets the angle
+        if angleset < 40:
+            angleset = 40
+        if angleset > 150:
+            angleset = 150
+
         kit.servo[0].angle = angleset
-        # kit.continuous_servo[1].throttle = (0.3*(1-(2*abs(peroffset)))) #This is an option equation for slowing down in turns. We have to play around with the numbers.
+
         kit.continuous_servo[1].throttle = streamer.direction * (max_speed*(speed/100))  # This sets the speed for the car. the range is 0 to 1. 0.15 is the slowest it can go in our tests.
 
     kit.continuous_servo[1].throttle = 0
