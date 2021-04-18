@@ -30,7 +30,54 @@ class RedisConn:
         cars.pop(car_id)
         self.set_car_json('cars', json.dumps(cars))
 
-    def store_sensor_readings(self, car_id, car_json, sensor_readings):
+    # Get the most recent sensor string
+    def sanitize_sensor_reading(self, car_id, sensor_data):
+        output_dict = {
+            "hall_effect": None,
+            "battery": None,
+            "temperature": None,
+            "humidity": None,
+            "imu": [None, None, None],
+            "ultrasonic": []
+        }
+
+        sensor_key = car_id + "-last_sensor_reading"
+        if r.exists(sensor_key):
+            for last_reading in json.loads(r.get(sensor_key)):
+                if "Distance" in last_reading:
+                    output_dict['ultrasonic'].append(last_reading)
+                if last_reading == "humidity":
+                    output_dict['humidity'] = last_reading
+                if last_reading == "x-axis":
+                    output_dict['imu'][0] = last_reading
+                if last_reading == "y-axis":
+                    output_dict['imu'][1] = last_reading
+                if last_reading == "z-axis":
+                    output_dict['imu'][2] = last_reading
+                if last_reading == "heat index":
+                    output_dict['battery'] = last_reading
+        else:
+            r.set(sensor_key, json.dumps(sensor_data))
+
+        for reading in sensor_data:
+                if "Distance" in reading:
+                    output_dict['ultrasonic'].append(reading)
+                if reading == "humidity":
+                    output_dict['humidity'] = reading
+                if reading == "x-axis":
+                    output_dict['imu'][0] = reading
+                if reading == "y-axis":
+                    output_dict['imu'][1] = reading
+                if reading == "z-axis":
+                    output_dict['imu'][2] = reading
+                if reading == "heat index":
+                    output_dict['battery'] = reading
+
+        return output_dict
+
+
+
+    def store_sensor_readingtimestamps(self, car_id, car_json, sensor_readings):
         # Append the new readings to the historic data
         sensor_time = datetime.now().strftime('%H:%M:%S')
         car_json["timestamp"].append(sensor_time)

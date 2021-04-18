@@ -58,6 +58,18 @@ def handle_cv_message(message):
     filtered2web_string = 'filtered2web/' + message['carid']
     socketio.emit(filtered2web_string, message, namespace='/web')
 
+def parse_reading(sensor_string):
+    sensor_dict = {}
+    sensor_string = sensor_string.strip()
+    sensor_string = sensor_string.replace("||", "|")
+    sensor_string = sensor_string.lstrip("|")
+    sensor_string = sensor_string.rstrip("|")
+    readings = sensor_string.split("|")
+    for reading in readings:
+        reading_kv = reading.split(":")
+        sensor_dict[reading_kv[0]] = reading_kv[1]
+    
+    return output_dict
 
 def getCar(car_id):
     car_json = redis.get_car_json(car_id)
@@ -158,8 +170,12 @@ def carControl(car_id):
 def car_data(car_id):
     car_json = getCar(car_id)
     if request.method == 'POST':
-        sensor_readings = request.get_json()
-        new_readings = json.loads(redis.store_sensor_readings(car_id, car_json, sensor_readings))
+        sensor_string = request.get_json()['sensor_string']
+        if sensor_string == "":
+            return '400 BAD REQUEST', 400
+        partial_readings = parse_reading(sensor_string)
+        full_readings = redis.sanitize_sensor_reading(partial_readings)
+        new_readings = json.loads(redis.store_sensor_readings(car_id, car_json, full_readings))
         print(new_readings)
         data2web_string = 'data2web/' + car_id
         socketio.emit(data2web_string, json.dumps(new_readings), namespace='/web')
@@ -177,8 +193,8 @@ def getFriendlyCarName():
     color = colors[randint(0, len(colors) - 1)]
     car = cars[randint(0, len(cars) - 1)]
 
-    if randint(1, 100) == 7:
-        ee_names = ['Binky\'s Bus', 'Gordon\'s Granola Gondola', 'Pradeep\'s Jeep']
+    if randint(1, 100) == 66:
+        ee_names = ['Binky\'s Bus', 'Gordon\'s Granola Gondola', 'Pradeep\'s Jeep', 'Raj\'s Boof Bus', 'Eric\'s Elf E-Bike', 'Cricky\'s Chili Dog Cart', 'Stultz\'s Stinky Surfboard', 'Dexter\'s Devious Dumptruck']
         return ee_names[randint(0, len(ee_names) - 1)]
 
     return f"{descriptor} {color} {car}"
