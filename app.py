@@ -174,6 +174,7 @@ def car_data(car_id):
         if sensor_string == "":
             return '400 BAD REQUEST', 400
         partial_readings = parse_reading(sensor_string)
+        print(f"Sensor string: {sensor_string}")
         full_readings = redis.sanitize_sensor_reading(car_id, partial_readings)
         new_readings = json.loads(redis.store_sensor_readingtimestamps(car_id, car_json, full_readings))
         print(new_readings)
