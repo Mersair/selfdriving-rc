@@ -3,7 +3,7 @@ import time
 import requests
 import subprocess
 
-time.sleep(5)
+time.sleep(7)
 
 # set up the serial line
 ser = serial.Serial('/dev/ttyACM0', 9600)
@@ -17,15 +17,11 @@ post_url = f"https://ai-car.herokuapp.com/api/car/{car_id}/data"
 
 while True:
     reading = ser.readline()
-    try:
-        reading = str(reading, 'utf-8')
-    except (UnicodeDecodeError, AttributeError):
-        print(f"Read a bad line: {reading}")
-        continue
+    reading = str(reading, 'utf-8')
     reading = reading.rstrip('\r\n')
-    temp_reading = subprocess.run("vcgencmd measure_temp", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
-    temp_reading = temp_reading[5:-3]
-    reading = f"{reading}|cpu_temp:{temp_reading}"
+    # temp_reading = subprocess.run("vcgencmd measure_temp", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+    # temp_reading = temp_reading[5:-3]
+    # reading = f"{reading}|cpu_temp:{temp_reading}"
     print(reading)
     myobj = {'sensor_string': reading}
     result = requests.post(post_url, json = myobj)
