@@ -43,35 +43,36 @@ class RedisConn:
 
         sensor_key = car_id + "-last_sensor_reading"
         if r.exists(sensor_key):
-            for last_reading in json.loads(r.get(sensor_key)):
+            last_reading_dict = json.loads(r.get(sensor_key))
+            for last_reading in last_reading_dict:
                 if "Distance" in last_reading:
-                    output_dict['ultrasonic'].append(last_reading)
+                    output_dict['ultrasonic'].append(last_reading_dict[last_reading])
                 if last_reading == "humidity":
-                    output_dict['humidity'] = last_reading
+                    output_dict['humidity'] = last_reading_dict[last_reading]
                 if last_reading == "x-axis":
-                    output_dict['imu'][0] = last_reading
+                    output_dict['imu'][0] = last_reading_dict[last_reading]
                 if last_reading == "y-axis":
-                    output_dict['imu'][1] = last_reading
+                    output_dict['imu'][1] = last_reading_dict[last_reading]
                 if last_reading == "z-axis":
-                    output_dict['imu'][2] = last_reading
+                    output_dict['imu'][2] = last_reading_dict[last_reading]
                 if last_reading == "heat index":
-                    output_dict['battery'] = last_reading
+                    output_dict['battery'] = last_reading_dict[last_reading]
         else:
             r.set(sensor_key, json.dumps(sensor_data))
 
         for reading in sensor_data:
                 if "Distance" in reading:
-                    output_dict['ultrasonic'].append(reading)
+                    output_dict['ultrasonic'].append(sensor_data[reading])
                 if reading == "humidity":
-                    output_dict['humidity'] = reading
+                    output_dict['humidity'] = sensor_data[reading]
                 if reading == "x-axis":
-                    output_dict['imu'][0] = reading
+                    output_dict['imu'][0] = sensor_data[reading]
                 if reading == "y-axis":
-                    output_dict['imu'][1] = reading
+                    output_dict['imu'][1] = sensor_data[reading]
                 if reading == "z-axis":
-                    output_dict['imu'][2] = reading
+                    output_dict['imu'][2] = sensor_data[reading]
                 if reading == "heat index":
-                    output_dict['battery'] = reading
+                    output_dict['battery'] = sensor_data[reading]
 
         print("Output dict:")
         print(output_dict)
