@@ -213,7 +213,7 @@ const batConfig = {
         responsive: true,
         title: {
             display: 'true',
-            text: 'Heat Index'
+            text: 'CPU Temp'
         },
         tooltips: {
             intersect: true,

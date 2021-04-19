@@ -65,7 +65,7 @@ function downloadCSV(data, name){
    let csvContent = "data:text/csv;charset=utf-8,"
 
    rows = [];
-   rows.push(["timestamp", "battery", "hall_effect", "humidity", "temperature", "imu_x", "imu_y", "imu_z",
+   rows.push(["timestamp", "cpu temp", "hall_effect", "humidity", "temperature", "imu_x", "imu_y", "imu_z",
         "ultrasonic 1", "ultrasonic 2", "ultrasonic 3", "ultrasonic 4", "ultrasonic 5", "ultrasonic 6", "ultrasonic 7"]);
    let i;
    sensorData = JSON.parse(data);
