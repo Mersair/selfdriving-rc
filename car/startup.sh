@@ -53,12 +53,6 @@ fi
 
 while :
 do
-    echo "Reading sensor data\n"
-    SENSOR_STRING=`grep . /etc/selfdriving-rc/sensor_data | tail -n 1`
-    echo "Sending sensor data\n"
-    SENSOR_RESPONSE=`curl -sX POST -H "Content-Type: application/json" \
-    -d '{"sensor_string":"$SENSOR_STRING"}' $BASEURL/api/car/$CARID/data`
-    echo "Got the response: $SENSOR_RESPONSE"
     echo "Checking for car control commands"
     CAR_SPEED=`curl -sX GET $SERVER_URL/api/car/$CAR_ID/get/speed`
     echo "Car speed: $CAR_SPEED"

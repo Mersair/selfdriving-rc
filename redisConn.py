@@ -32,14 +32,7 @@ class RedisConn:
 
     # Get the most recent sensor string
     def sanitize_sensor_reading(self, car_id, sensor_data):
-        output_dict = {
-            "hall_effect": None,
-            "battery": None,
-            "temperature": None,
-            "humidity": None,
-            "imu": [None, None, None],
-            "ultrasonic": []
-        }
+        output_dict = {}
 
         sensor_key = car_id + "-last_sensor_reading"
         if r.exists(sensor_key):
