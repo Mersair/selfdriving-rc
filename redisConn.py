@@ -74,6 +74,8 @@ class RedisConn:
                 if reading == "heat index":
                     output_dict['battery'] = sensor_data[reading]
 
+        r.set(sensor_key, json.dumps(output_dict))
+
         print("Output dict:")
         print(output_dict)
 
