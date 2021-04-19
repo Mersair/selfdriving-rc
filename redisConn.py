@@ -49,6 +49,8 @@ class RedisConn:
                     output_dict['ultrasonic'].append(last_reading_dict[last_reading])
                 if last_reading == "humidity":
                     output_dict['humidity'] = last_reading_dict[last_reading]
+                if last_reading == "temperature":
+                    output_dict['temperature'] = last_reading_dict[last_reading]
                 if last_reading == "imu":
                     output_dict['imu'][0] = last_reading_dict[last_reading][0]
                     output_dict['imu'][1] = last_reading_dict[last_reading][1]
@@ -63,6 +65,8 @@ class RedisConn:
                     output_dict['ultrasonic'].append(sensor_data[reading])
                 if reading == "humidity":
                     output_dict['humidity'] = sensor_data[reading]
+                if reading == "temperature":
+                    output_dict['temperature'] = sensor_data[reading]
                 if reading == "x-axis":
                     output_dict['imu'][0] = sensor_data[reading]
                 if reading == "y-axis":

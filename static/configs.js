@@ -212,7 +212,7 @@ const batConfig = {
         },
         responsive: true,
         title: {
-            display: true,
+            display: 'true',
             text: 'Heat Index'
         },
         tooltips: {
