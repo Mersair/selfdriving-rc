@@ -17,10 +17,14 @@ post_url = f"https://ai-car.herokuapp.com/api/car/{car_id}/data"
 
 while True:
     reading = ser.readline()
-    reading = str(reading, 'utf-8')
+    try:
+        reading = str(reading, 'utf-8')
+    except (UnicodeDecodeError, AttributeError):
+        print(f"Read a bad line: {reading}")
+        continue
     reading = reading.rstrip('\r\n')
     temp_reading = subprocess.run("vcgencmd measure_temp", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
-    temp_reading = temp_reading[5:-2]
+    temp_reading = temp_reading[5:-3]
     reading = f"{reading}|cpu_temp:{temp_reading}"
     print(reading)
     myobj = {'sensor_string': reading}

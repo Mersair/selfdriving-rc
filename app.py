@@ -195,7 +195,7 @@ def getFriendlyCarName():
     car = cars[randint(0, len(cars) - 1)]
 
     if randint(1, 100) == 66:
-        ee_names = ['Binky\'s Bus', 'Gordon\'s Granola Gondola', 'Pradeep\'s Jeep', 'Raj\'s Boof Bus', 'Eric\'s Elf E-Bike', 'Cricky\'s Chili Dog Cart', 'Stultz\'s Stinky Surfboard', 'Dexter\'s Devious Dumptruck']
+        ee_names = ['Binky\'s Bus', 'Gordon\'s Granola Gondola', 'Pradeep\'s Jeep', 'Raj\'s Boof Bus', 'Eric\'s Elf E-Bike', 'Cricky\'s Chili Dog Cart', 'Stultz\'s Stinky Surfboard', 'Dexter\'s Devious Dumptruck', 'Taylan\'s Tipsy Trailer', 'Enzo\'s Electric ']
         return ee_names[randint(0, len(ee_names) - 1)]
 
     return f"{descriptor} {color} {car}"
