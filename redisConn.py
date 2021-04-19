@@ -62,7 +62,7 @@ class RedisConn:
         for reading in sensor_data:
                 if "Distance" in reading:
                     output_dict['ultrasonic'].append(reading)
-                if reading == "humidity":pi@130.215.124.149
+                if reading == "humidity":
                     output_dict['humidity'] = reading
                 if reading == "x-axis":
                     output_dict['imu'][0] = reading
