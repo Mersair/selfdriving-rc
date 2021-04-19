@@ -213,7 +213,7 @@ const batConfig = {
         responsive: true,
         title: {
             display: true,
-            text: 'Battery'
+            text: 'Heat Index'
         },
         tooltips: {
             intersect: true,

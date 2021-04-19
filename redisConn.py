@@ -49,14 +49,12 @@ class RedisConn:
                     output_dict['ultrasonic'].append(last_reading_dict[last_reading])
                 if last_reading == "humidity":
                     output_dict['humidity'] = last_reading_dict[last_reading]
-                if last_reading == "x-axis":
-                    output_dict['imu'][0] = last_reading_dict[last_reading]
-                if last_reading == "y-axis":
-                    output_dict['imu'][1] = last_reading_dict[last_reading]
-                if last_reading == "z-axis":
-                    output_dict['imu'][2] = last_reading_dict[last_reading]
-                if last_reading == "heat index":
-                    output_dict['battery'] = last_reading_dict[last_reading]
+                if last_reading == "imu":
+                    output_dict['imu'][0] = last_reading_dict[last_reading][0]
+                    output_dict['imu'][1] = last_reading_dict[last_reading][1]
+                    output_dict['imu'][2] = last_reading_dict[last_reading][2]
+                if last_reading == "battery":
+                    output_dict['battery'] = last_reading_dict['battery']
         else:
             r.set(sensor_key, json.dumps(sensor_data))
 
@@ -80,8 +78,6 @@ class RedisConn:
         print(output_dict)
 
         return output_dict
-
-
 
     def store_sensor_readingtimestamps(self, car_id, car_json, sensor_readings):
         # Append the new readings to the historic data
