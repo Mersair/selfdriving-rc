@@ -2,7 +2,7 @@
 
 SERVER_URL="https://ai-car.herokuapp.com"
 FLASK_DEBUG_IP="127.0.0.1:5000"
-CAR_ID_LOCATION="/etc/selfdriving-rc/car_id"
+CAR_ID_LOCATION="/etc/selfdriving-rc/car_id.txt"
 CAR_SPEED_LOCATION="/etc/selfdriving-rc/car_speed"
 CAR_STEERING_LOCATION="/etc/selfdriving-rc/car_steering"
 CAR_SENSOR_DATA_LOCATION="/etc/selfdriving-rc/sensor_data"
@@ -22,11 +22,11 @@ PROGRAM_FILENAME=`basename $CAR_DRIVING_PROGRAM`
 pkill -f $PROGRAM_FILENAME
 echo "" > $CAR_ID_LOCATION
 echo 0 > $CAR_SPEED_LOCATION
-echo "" > $CAR_SENSOR_DATA_LOCATION
+#echo "" > $CAR_SENSOR_DATA_LOCATION
 
 sleep 5
 
-stdbuf -o0 cat /dev/ttyACM0 >$CAR_SENSOR_DATA_LOCATION &
+#stdbuf -o0 cat /dev/ttyACM0 >$CAR_SENSOR_DATA_LOCATION &
 
 echo "Starting selfdriving program in child process"
 nohup python3 $CAR_DRIVING_PROGRAM > /home/pi/Documents/car/logs/drive &
@@ -58,11 +58,7 @@ do
     echo "Sending sensor data\n"
     SENSOR_RESPONSE=`curl -sX POST -H "Content-Type: application/json" \
     -d '{"sensor_string":"$SENSOR_STRING"}' $BASEURL/api/car/$CARID/data`
-    if [ "$SENSOR_RESPONSE" == "200 OK" ]; then
-    echo "Server ackd sensor data"
-    else
-    echo "Server is offline, or rejected the sensor data"
-    fi
+    echo "Got the response: $SENSOR_RESPONSE"
     echo "Checking for car control commands"
     CAR_SPEED=`curl -sX GET $SERVER_URL/api/car/$CAR_ID/get/speed`
     echo "Car speed: $CAR_SPEED"
