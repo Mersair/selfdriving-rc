@@ -175,7 +175,7 @@ def car_data(car_id):
             return '400 BAD REQUEST', 400
         partial_readings = parse_reading(sensor_string)
         full_readings = redis.sanitize_sensor_reading(car_id, partial_readings)
-        new_readings = json.loads(redis.store_sensor_readings(car_id, car_json, full_readings))
+        new_readings = json.loads(redis.store_sensor_readingtimestamps(car_id, car_json, full_readings))
         print(new_readings)
         data2web_string = 'data2web/' + car_id
         socketio.emit(data2web_string, json.dumps(new_readings), namespace='/web')
