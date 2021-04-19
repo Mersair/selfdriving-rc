@@ -69,7 +69,7 @@ def parse_reading(sensor_string):
         reading_kv = reading.split(":")
         sensor_dict[reading_kv[0]] = reading_kv[1]
     
-    return output_dict
+    return sensor_dict
 
 def getCar(car_id):
     car_json = redis.get_car_json(car_id)
