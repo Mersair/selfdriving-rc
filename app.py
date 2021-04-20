@@ -5,12 +5,9 @@ import json
 import uuid
 from redisConn import RedisConn
 import time
-from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 socketio = SocketIO(app)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
 redis = RedisConn()
 
 # Initialize the cars in the set
@@ -132,7 +129,6 @@ def selectCar():
     return render_template("landing.html", cars=cars), 200
 
 @app.route('/dashboard/<car_id>')
-@cross_origin()
 def carDashboard(car_id):
     cars = redis.get_car_json('cars')
     friendly_name = cars[car_id]
@@ -141,7 +137,6 @@ def carDashboard(car_id):
     return render_template("dashboard.html", carid=car_id, friendly_name=friendly_name), 200
 
 @app.route('/dashboard/<car_id>/colorselector')
-@cross_origin()
 def colorSelector(car_id):
     cars = redis.get_car_json('cars')
     friendly_name = cars[car_id]
