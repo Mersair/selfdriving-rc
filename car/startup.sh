@@ -39,7 +39,7 @@ terminate_startup () {
 }
 
 # Delay to ensure driving code has recieved an ID and updated the /car_id file
-sleep 5
+sleep 10
 
 echo "Reading car ID from '$CAR_ID_LOCATION'."
 CAR_ID=`cat $CAR_ID_LOCATION`

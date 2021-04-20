@@ -93,7 +93,7 @@ class RedisConn:
         car_json["humidity_data"].append(sensor_readings['humidity'])
         car_json["imu_data"].append(sensor_readings['imu'])
         for idx in range(len(sensor_readings['ultrasonic'])):
-            if sensor_readings['ultrasonic'][idx] == 1:
+            if sensor_readings['ultrasonic'][idx] == "0":
                 sensor_readings['ultrasonic'][idx] = 100
         car_json["ultrasonic_data"].append(sensor_readings['ultrasonic'])
         r.set(car_id, json.dumps(car_json))

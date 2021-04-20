@@ -5,9 +5,12 @@ import json
 import uuid
 from redisConn import RedisConn
 import time
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 socketio = SocketIO(app)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 redis = RedisConn()
 
 # Initialize the cars in the set
@@ -48,13 +51,15 @@ def color_channels_to_redis(message):
 
 # Video Socket message handlers
 @socketio.on('cvimage2server', namespace='/cv')
+@cross_origin()
 def handle_cv_message(message):
     image2web_string = 'image2web/' + message['carid']
     socketio.emit(image2web_string, message, namespace='/web')
 
 
 @socketio.on('cvfiltered2server', namespace='/cv')
-def handle_cv_message(message):
+@cross_origin()
+def handle_cv_message2(message):
     filtered2web_string = 'filtered2web/' + message['carid']
     socketio.emit(filtered2web_string, message, namespace='/web')
 
@@ -129,6 +134,7 @@ def selectCar():
     return render_template("landing.html", cars=cars), 200
 
 @app.route('/dashboard/<car_id>')
+@cross_origin()
 def carDashboard(car_id):
     cars = redis.get_car_json('cars')
     friendly_name = cars[car_id]
@@ -137,6 +143,7 @@ def carDashboard(car_id):
     return render_template("dashboard.html", carid=car_id, friendly_name=friendly_name), 200
 
 @app.route('/dashboard/<car_id>/colorselector')
+@cross_origin()
 def colorSelector(car_id):
     cars = redis.get_car_json('cars')
     friendly_name = cars[car_id]
@@ -292,6 +299,7 @@ def toggle_driving_direction(car_id):
     direction2cv_string = 'direction2cv/' + car_id
     socketio.emit(direction2cv_string, namespace='/cv')
     return '200 OK', 200
+
 
 @app.route('/api/car/<car_id>/get/stream')
 def is_streaming(car_id):
