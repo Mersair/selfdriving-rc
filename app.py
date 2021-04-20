@@ -51,14 +51,12 @@ def color_channels_to_redis(message):
 
 # Video Socket message handlers
 @socketio.on('cvimage2server', namespace='/cv')
-@cross_origin()
 def handle_cv_message(message):
     image2web_string = 'image2web/' + message['carid']
     socketio.emit(image2web_string, message, namespace='/web')
 
 
 @socketio.on('cvfiltered2server', namespace='/cv')
-@cross_origin()
 def handle_cv_message2(message):
     filtered2web_string = 'filtered2web/' + message['carid']
     socketio.emit(filtered2web_string, message, namespace='/web')
