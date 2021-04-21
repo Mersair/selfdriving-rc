@@ -54,7 +54,7 @@ def handle_cv_message(message):
 
 
 @socketio.on('cvfiltered2server', namespace='/cv')
-def handle_cv_message2(message):
+def handle_filtered_cv_message(message):
     filtered2web_string = 'filtered2web/' + message['carid']
     socketio.emit(filtered2web_string, message, namespace='/web')
 
