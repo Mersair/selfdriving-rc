@@ -8,6 +8,21 @@ import redis
 load_dotenv('.env')
 r = redis.from_url(os.environ.get("REDIS_URL"))
 
+# Hacky method for updating the order of ultrasonic readings
+def bungle_ultrasonics(good_array):
+    if len(good_array) < 5:
+        return good_array
+    bad_array = []
+    bad_array[0] = good_array[2]
+    bad_array[1] = good_array[3]
+    bad_array[2] = good_array[4]
+    bad_array[3] = 0.0
+    bad_array[4] = 0.0
+    bad_array[5] = good_array[0]
+    bad_array[6] = good_array[1]
+
+    return bad_array
+
 class RedisConn:
     def __init__(self):
         pass
@@ -29,21 +44,6 @@ class RedisConn:
         cars = self.get_car_json('cars')
         cars.pop(car_id)
         self.set_car_json('cars', json.dumps(cars))
-
-    # Hacky method for updating the order of ultrasonic readings
-    def bungle_ultrasonics(good_array):
-        if len(good_array) < 5:
-            return good_array
-        bad_array = []
-        bad_array[0] = good_array[2]
-        bad_array[1] = good_array[3]
-        bad_array[2] = good_array[4]
-        bad_array[3] = 0.0
-        bad_array[4] = 0.0
-        bad_array[5] = good_array[0]
-        bad_array[6] = good_array[1]
-
-        return bad_array
 
     # Get the most recent sensor string
     def sanitize_sensor_reading(self, car_id, sensor_data):
