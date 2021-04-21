@@ -30,6 +30,21 @@ class RedisConn:
         cars.pop(car_id)
         self.set_car_json('cars', json.dumps(cars))
 
+    # Hacky method for updating the order of ultrasonic readings
+    def bungle_ultrasonics(good_array):
+        if len(good_array) < 5:
+            return good_array
+        bad_array = []
+        bad_array[0] = good_array[2]
+        bad_array[1] = good_array[3]
+        bad_array[2] = good_array[4]
+        bad_array[3] = 0.0
+        bad_array[4] = 0.0
+        bad_array[5] = good_array[0]
+        bad_array[6] = good_array[1]
+
+        return bad_array
+
     # Get the most recent sensor string
     def sanitize_sensor_reading(self, car_id, sensor_data):
         output_dict = {
@@ -76,10 +91,10 @@ class RedisConn:
                 if reading == "cpu_temp":
                     output_dict['battery'] = sensor_data[reading]
 
-        r.set(sensor_key, json.dumps(output_dict))
+        # Hacky fix for replacing ultrasonics
+        output_dict['ultrasonic'] = bungle_ultrasonics(output_dict['ultrasonic'])
 
-        print("Output dict:")
-        print(output_dict)
+        r.set(sensor_key, json.dumps(output_dict))
 
         return output_dict
 

@@ -177,7 +177,6 @@ def car_data(car_id):
         print(f"Sensor string: {sensor_string}")
         full_readings = redis.sanitize_sensor_reading(car_id, partial_readings)
         new_readings = json.loads(redis.store_sensor_readingtimestamps(car_id, car_json, full_readings))
-        print(new_readings)
         data2web_string = 'data2web/' + car_id
         socketio.emit(data2web_string, json.dumps(new_readings), namespace='/web')
         return '200 OK', 200
