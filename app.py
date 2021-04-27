@@ -27,6 +27,7 @@ def disconnect_web():
 
 @socketio.on('connect', namespace='/cv')
 def connect_cv():
+    print(f'Trying to get the arguments: {request.args}')
     enrollCar(request.sid, request.args.get('carnumber'))
     print('[INFO] CV client connected: {}'.format(request.sid))
 
