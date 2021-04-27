@@ -22,6 +22,10 @@ sio = socketio.Client()
 output_frame = None
 filtered_frame = None
 
+carnumber_file = open("/etc/selfdriving-rc/carnumber", "r")
+carnumber = carnumber_file.readline()
+carnumber_file.close()
+
 @sio.event(namespace='/cv')
 def connect():
     print('[INFO] Connected to server.')
@@ -107,7 +111,7 @@ class CVClient(object):
 
 
 streamer = CVClient('ai-car.herokuapp.com', [255, 255, 255], [0, 0, 0])
-@sio.on('carid2cv', namespace='/cv')
+@sio.on('carid2cv', namespace=f'/cv?carnumber={carnumber}')
 def set_car_id(carid):
     # make sure the car does not already have an id
 

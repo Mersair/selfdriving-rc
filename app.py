@@ -27,7 +27,7 @@ def disconnect_web():
 
 @socketio.on('connect', namespace='/cv')
 def connect_cv():
-    enrollCar(request.sid)
+    enrollCar(request.sid, request.args.get('carnumber'))
     print('[INFO] CV client connected: {}'.format(request.sid))
 
 
@@ -82,7 +82,7 @@ def setCar(car_id, car_data):
     car_json = json.dumps(car_data)
     redis.set_car_json(car_id, car_json)
 
-def enrollCar(sid):
+def enrollCar(sid, car_number=-1):
     # generate a unique id for the car
     car_id = str(uuid.uuid4())
 
@@ -111,7 +111,7 @@ def enrollCar(sid):
 
     # add the car to the cars list (with a friendly display name)
     cars = redis.get_car_json('cars')
-    cars[car_id] = getFriendlyCarName()
+    cars[car_id] = getFriendlyCarName() + f" (Car ID: {car_number})"
     redis.set_car_json('cars', json.dumps(cars))
 
     # send the carid to the car
