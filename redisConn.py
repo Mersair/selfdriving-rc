@@ -10,9 +10,10 @@ r = redis.from_url(os.environ.get("REDIS_URL"))
 
 # Hacky method for updating the order of ultrasonic readings
 def bungle_ultrasonics(good_array):
+    print(good_array)
     if len(good_array) < 5:
         return good_array
-    bad_array = []
+    bad_array = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     bad_array[0] = good_array[2]
     bad_array[1] = good_array[3]
     bad_array[2] = good_array[4]
