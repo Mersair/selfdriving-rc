@@ -27,10 +27,10 @@ def disconnect_web():
 
 @socketio.on('connect', namespace='/cv')
 def connect_cv():
-    print(f'Trying to get the arguments: {request.args}')
+    print(f'Trying to get the arguments: {request.headers}')
     enrollCar(request.sid, request.headers.get('carnumber'))
     print('[INFO] CV client connected: {}'.format(request.sid))
-    print(f"[!] Request params during enrollment: {request.args}")
+    print(f"[!] Request params during enrollment: {request.headers['carnumber']}")
 
 
 @socketio.on('disconnect', namespace='/cv')
