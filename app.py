@@ -29,9 +29,6 @@ def disconnect_web():
 def connect_cv():
     print(f'Trying to get the arguments: {request.headers}')
     enrollCar(request.sid, request.headers.get('carnumber'))
-    print('[INFO] CV client connected: {}'.format(request.sid))
-    print(f"[!] Request params during enrollment: {request.headers['carnumber']}")
-
 
 @socketio.on('disconnect', namespace='/cv')
 def disconnect_cv():
@@ -113,7 +110,7 @@ def enrollCar(sid, car_number=-1):
 
     # add the car to the cars list (with a friendly display name)
     cars = redis.get_car_json('cars')
-    cars[car_id] = getFriendlyCarName() + f" (Car ID: {car_number})"
+    cars[car_id] = getFriendlyCarName() + f" (Team {car_number})"
     redis.set_car_json('cars', json.dumps(cars))
 
     # send the carid to the car
