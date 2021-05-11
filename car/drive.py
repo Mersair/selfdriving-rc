@@ -26,7 +26,7 @@ carnumber_file = open("/etc/selfdriving-rc/carnumber", "r")
 carnumber = carnumber_file.readline()
 carnumber_file.close()
 
-@sio.event(namespace='/cv' + f'?carnumber={carnumber}')
+@sio.event(namespace='/cv')
 def connect():
     print('[INFO] Connected to server.')
 
@@ -56,7 +56,8 @@ class CVClient(object):
         sio.connect(
             'http://{}'.format(self.server_addr),
             transports=['websocket'],
-            namespaces=['/cv'])
+            namespaces=['/cv'],
+            headers={'carnumber': f"{carnumber}"})
         time.sleep(2.0)
         return self
 
