@@ -111,6 +111,7 @@ def enrollCar(sid, car_number=-1):
     # add the car to the cars list (with a friendly display name)
     cars = redis.get_car_json('cars')
     cars[car_id] = getFriendlyCarName() + f" (Team {car_number})"
+    print(f"[TARGET] team {car_number} was enrolled")
     redis.set_car_json('cars', json.dumps(cars))
 
     # send the carid to the car
